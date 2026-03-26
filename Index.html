@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AccuLedger Pro — GST Fraud Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #07090E;
+  --card:   #0C1018;
+  --card2:  #111722;
+  --line:   rgba(255,255,255,.06);
+  --gold:   #E8B84B;
+  --gold-d: rgba(232,184,75,.1);
+  --gold-b: rgba(232,184,75,.25);
+  --text:   #D8E4F0;
+  --mid:    #7A8FA0;
+  --dim:    #3A4A5A;
+  --red:    #E8546A;  --red-d:rgba(232,84,106,.12);
+  --grn:    #3DC98C;  --grn-d:rgba(61,201,140,.12);
+  --blu:    #4A9EF8;  --blu-d:rgba(74,158,248,.12);
+  --ora:    #F07040;  --ora-d:rgba(240,112,64,.12);
+  --pur:    #9B72F0;  --pur-d:rgba(155,114,240,.12);
+  --teal:   #22C4A0;
+  --radius: 12px;
+  --radius-sm: 7px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:220px;min-width:220px;background:#050810;
+  border-right:1px solid var(--gold-b);
+  display:flex;flex-direction:column;
+  position:fixed;height:100vh;top:0;left:0;z-index:100;
+  overflow-y:auto;
+}
+.sidebar-logo{
+  padding:1.4rem 1.2rem .8rem;
+  border-bottom:1px solid rgba(232,184,75,.12);
+}
+.logo-mark{font-family:'Instrument Serif',serif;font-size:1.3rem;color:var(--gold);line-height:1}
+.logo-sub{font-size:.6rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+.nav-group{padding:.5rem 0}
+.nav-label{
+  font-size:.57rem;text-transform:uppercase;letter-spacing:2px;
+  color:var(--dim);padding:.6rem 1.2rem .2rem;font-weight:600;
+}
+.nav-item{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.55rem 1.2rem;font-size:.82rem;color:var(--mid);
+  cursor:pointer;transition:.15s;border-left:2px solid transparent;
+  user-select:none;
+}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:var(--gold-d)}
+.nav-icon{font-size:1rem;width:18px;text-align:center}
+
+.sidebar-footer{
+  margin-top:auto;padding:1rem;border-top:1px solid var(--line);
+  font-size:.65rem;color:var(--dim);
+}
+.db-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--grn);margin-right:5px}
+
+/* ── Main ── */
+.main{margin-left:220px;flex:1;min-height:100vh;padding:1.5rem}
+
+/* ── Company bar ── */
+.company-bar{
+  display:flex;align-items:center;gap:.8rem;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:.7rem 1.2rem;
+  margin-bottom:1.2rem;
+}
+.company-bar select{
+  background:transparent;border:none;color:var(--text);
+  font-size:.85rem;font-family:'Outfit',sans-serif;cursor:pointer;
+  outline:none;flex:1;
+}
+.company-bar select option{background:#0C1018}
+.co-badge{
+  font-size:.65rem;background:var(--gold-d);color:var(--gold);
+  border:1px solid var(--gold-b);border-radius:20px;padding:2px 8px;
+  font-weight:600;white-space:nowrap;
+}
+.txn-toggle{display:flex;gap:.4rem;margin-left:auto}
+.txn-btn{
+  font-size:.7rem;padding:4px 10px;border-radius:20px;
+  border:1px solid var(--line);background:transparent;
+  color:var(--mid);cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:.15s;
+}
+.txn-btn.active{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold)}
+
+/* ── Pages ── */
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Hero ── */
+.hero{
+  background:linear-gradient(135deg,#07090E 0%,#0C1420 50%,#080C14 100%);
+  border:1px solid var(--gold-b);border-radius:16px;
+  padding:1.8rem 2rem;margin-bottom:1.2rem;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:280px;height:280px;
+  background:radial-gradient(circle,rgba(232,184,75,.07),transparent 65%);
+}
+.hero-title{
+  font-family:'Instrument Serif',serif;font-size:1.9rem;color:var(--gold);
+  margin-bottom:.2rem;
+}
+.hero-sub{font-size:.75rem;color:var(--mid);text-transform:uppercase;letter-spacing:2px}
+.hero-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
+.tag{
+  font-size:.62rem;font-family:'DM Mono',monospace;
+  padding:2px 8px;border-radius:20px;font-weight:500;
+}
+.tag-g{background:var(--grn-d);border:1px solid rgba(61,201,140,.3);color:var(--grn)}
+.tag-b{background:var(--blu-d);border:1px solid rgba(74,158,248,.3);color:var(--blu)}
+.tag-gold{background:var(--gold-d);border:1px solid var(--gold-b);color:var(--gold)}
+
+/* ── KPI grid ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.2rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.9rem 1.1rem}
+.kpi.r{border-color:rgba(232,84,106,.25)} .kpi.o{border-color:rgba(240,112,64,.25)}
+.kpi.g{border-color:rgba(61,201,140,.2)}  .kpi.b{border-color:rgba(74,158,248,.2)}
+.kpi-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-bottom:.25rem;font-weight:600}
+.kpi-val{font-family:'Instrument Serif',serif;font-size:1.8rem;line-height:1}
+.kpi.r .kpi-val{color:var(--red)} .kpi.o .kpi-val{color:var(--ora)}
+.kpi.g .kpi-val{color:var(--grn)} .kpi.b .kpi-val{color:var(--blu)}
+.kpi-note{font-size:.65rem;color:var(--dim);margin-top:.2rem}
+
+/* ── Section header ── */
+.shdr{
+  font-weight:600;font-size:.88rem;color:var(--text);
+  border-left:3px solid var(--gold);padding-left:.65rem;margin:1.2rem 0 .6rem;
+}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:.6rem}
+.card.danger{border-color:rgba(232,84,106,.35)}
+.card.warn{border-color:rgba(240,112,64,.3)}
+.card.ok{border-color:rgba(61,201,140,.25)}
+
+/* ── Forms ── */
+.form-grid{display:grid;gap:.8rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.68rem;color:var(--mid);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.field input,.field select,.field textarea{
+  background:var(--card2);border:1px solid var(--line);
+  color:var(--text);border-radius:var(--radius-sm);
+  padding:.5rem .75rem;font-family:'Outfit',sans-serif;font-size:.85rem;
+  outline:none;transition:.15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold-b)}
+.field textarea{resize:vertical;min-height:70px}
+.field select option{background:#111722}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.55rem 1.1rem;border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;border:none;transition:.15s;
+}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:#f0c862}
+.btn-secondary{background:transparent;border:1px solid var(--gold-b);color:var(--gold)}
+.btn-secondary:hover{background:var(--gold-d)}
+.btn-danger{background:transparent;border:1px solid rgba(232,84,106,.4);color:var(--red)}
+.btn-sm{padding:.35rem .75rem;font-size:.75rem}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead tr{background:var(--card2)}
+th{padding:.55rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600;white-space:nowrap}
+td{padding:.55rem .9rem;border-top:1px solid var(--line);color:var(--mid);white-space:nowrap}
+tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
+
+/* ── Risk pills ── */
+.risk-high{background:var(--red-d);color:var(--red);border:1px solid rgba(232,84,106,.35);border-radius:20px;padding:2px 8px;font-size:.65rem;font-weight:700;font-family:'DM Mono',monospace}
+.risk-med{background:var(--ora-d);color:var(--ora);border:1px solid rgba(240,112,64,.35);border-radius:20px;padding:2px 8px;font-size:.65rem;font-weight:700;font-family:'DM Mono',monospace}
+.risk-low{background:var(--grn-d);color:var(--grn);border:1px solid rgba(61,201,140,.3);border-radius:20px;padding:2px 8px;font-size:.65rem;font-weight:700;font-family:'DM Mono',monospace}
+
+/* ── GST badges ── */
+.gst-0{background:rgba(61,201,140,.15);color:var(--grn);border:1px solid rgba(61,201,140,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+.gst-3{background:rgba(74,158,248,.15);color:var(--blu);border:1px solid rgba(74,158,248,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+.gst-5{background:var(--gold-d);color:var(--gold);border:1px solid var(--gold-b);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+.gst-12{background:rgba(240,112,64,.15);color:var(--ora);border:1px solid rgba(240,112,64,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+.gst-18{background:rgba(232,84,106,.15);color:var(--red);border:1px solid rgba(232,84,106,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+.gst-28{background:var(--pur-d);color:var(--pur);border:1px solid rgba(155,114,240,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+
+/* ── Match pill ── */
+.mp-exact{background:var(--grn-d);color:var(--grn);border:1px solid rgba(61,201,140,.3)}
+.mp-prefix{background:var(--blu-d);color:var(--blu);border:1px solid rgba(74,158,248,.3)}
+.mp-contains{background:var(--gold-d);color:var(--gold);border:1px solid var(--gold-b)}
+.mp-fuzzy{background:var(--ora-d);color:var(--ora);border:1px solid rgba(240,112,64,.3)}
+[class^="mp-"]{border-radius:20px;padding:1px 7px;font-size:.62rem;font-weight:600;font-family:'DM Mono',monospace}
+
+/* ── Search wrap ── */
+.search-wrap{background:var(--card);border:1px solid var(--gold-b);border-radius:var(--radius);padding:1rem 1.3rem;margin-bottom:1rem}
+.search-row{display:grid;grid-template-columns:1fr auto auto;gap:.7rem;align-items:end}
+.search-row .field{margin:0}
+
+/* ── Result card ── */
+.result-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.9rem 1.2rem;margin-bottom:.5rem;transition:.15s}
+.result-card:hover{border-color:rgba(232,184,75,.3)}
+.result-card.top-result{border-color:rgba(61,201,140,.35)}
+.result-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem}
+.result-name{font-weight:600;font-size:.92rem;color:var(--text)}
+.result-meta{display:flex;align-items:center;gap:.6rem;margin-top:.3rem;flex-wrap:wrap}
+.hsn-code{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--gold);font-weight:600}
+.sim-row{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+.sim-bar-wrap{flex:1;background:rgba(255,255,255,.05);border-radius:3px;height:5px}
+.sim-bar{height:5px;border-radius:3px}
+.sim-label{font-size:.62rem;color:var(--dim);min-width:55px}
+
+/* ── Tax box ── */
+.tax-box{
+  background:linear-gradient(135deg,var(--card),var(--card2));
+  border:1px solid var(--gold-b);border-radius:var(--radius);padding:1.2rem 1.4rem;
+}
+.tax-row{display:flex;justify-content:space-between;align-items:center;padding:.25rem 0;font-size:.82rem}
+.tax-row.total-row{border-top:1px solid var(--line);margin-top:.3rem;padding-top:.5rem}
+.tax-label{color:var(--mid)}
+.tax-val{font-family:'DM Mono',monospace;font-weight:600}
+.tax-total-val{font-family:'DM Mono',monospace;font-weight:700;color:var(--gold);font-size:1rem}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:.3rem;margin-bottom:1rem;border-bottom:1px solid var(--line);padding-bottom:0}
+.tab{
+  padding:.5rem 1rem;font-size:.8rem;color:var(--mid);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;
+}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ── Layer backtrack ── */
+.bt-card{background:var(--card2);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.2rem;margin-bottom:.4rem}
+.bt-header{display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem}
+.bt-layer-id{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:600;min-width:35px}
+.bt-layer-name{font-weight:600;font-size:.85rem}
+.bt-type{font-size:.62rem;background:rgba(255,255,255,.05);padding:2px 7px;border-radius:4px;color:var(--mid)}
+.bt-latency{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--dim);margin-left:auto}
+.bt-decision{font-size:.8rem;color:var(--text);margin-bottom:.3rem}
+.bt-evidence{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--dim);background:#030508;padding:.35rem .6rem;border-radius:4px}
+
+/* ── SHAP bars ── */
+.shap-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.shap-label{width:160px;font-size:.72rem;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shap-bar-wrap{flex:1;background:rgba(255,255,255,.04);border-radius:3px;height:10px}
+.shap-bar{height:10px;border-radius:3px;transition:width .3s}
+.shap-val{width:45px;text-align:right;font-family:'DM Mono',monospace;font-size:.68rem;font-weight:600}
+
+/* ── Notice boxes ── */
+.note{border-radius:var(--radius-sm);padding:.6rem 1rem;font-size:.8rem;margin-bottom:.8rem}
+.note-ok{background:var(--grn-d);border:1px solid rgba(61,201,140,.3);color:#A0FFD8}
+.note-err{background:var(--red-d);border:1px solid rgba(232,84,106,.3);color:#FFB0C0}
+.note-warn{background:var(--ora-d);border:1px solid rgba(240,112,64,.3);color:#FFD0A0}
+.note-info{background:var(--blu-d);border:1px solid rgba(74,158,248,.3);color:#C0D8FF}
+
+/* ── Pagination ── */
+.pagination{display:flex;align-items:center;gap:.5rem;margin-top:.8rem;justify-content:center}
+.page-btn{background:var(--card2);border:1px solid var(--line);color:var(--mid);border-radius:var(--radius-sm);padding:.35rem .8rem;cursor:pointer;font-size:.78rem;font-family:'Outfit',sans-serif;transition:.15s}
+.page-btn:hover{border-color:var(--gold-b);color:var(--gold)}
+.page-btn:disabled{opacity:.3;cursor:not-allowed}
+.page-info{font-size:.75rem;color:var(--dim);padding:0 .5rem}
+
+/* ── Ledger tree ── */
+.ledger-group-header{
+  background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:.5rem .9rem;margin-bottom:.3rem;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.82rem;font-weight:600;
+}
+.ledger-group-header:hover{border-color:var(--gold-b)}
+.ledger-items{margin:.2rem 0 .3rem 1rem;display:none}
+.ledger-items.open{display:block}
+.ledger-item{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:.35rem .8rem;margin-bottom:.2rem;display:flex;justify-content:space-between;
+  align-items:center;font-size:.78rem;
+}
+.bal-dr{color:var(--red);font-family:'DM Mono',monospace;font-size:.75rem}
+.bal-cr{color:var(--grn);font-family:'DM Mono',monospace;font-size:.75rem}
+
+/* ── GSTN verify box ── */
+.gstn-box{
+  background:#030508;border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);padding:1rem;font-family:'DM Mono',monospace;font-size:.72rem;
+}
+.gstn-row{display:flex;gap:.5rem;margin-bottom:.3rem}
+.gstn-key{color:var(--dim);min-width:130px}
+
+/* ── Pipeline visual ── */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1rem}
+.pipe-node{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:.8rem .6rem;text-align:center;position:relative;
+}
+.pipe-node::after{
+  content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+  color:var(--dim);font-size:.8rem;pointer-events:none;
+}
+.pipe-node:last-child::after{display:none}
+.pipe-title{font-weight:700;font-size:.78rem;margin-bottom:.2rem}
+.pipe-desc{color:var(--mid);font-size:.65rem;line-height:1.4}
+.pipe-lat{font-family:'DM Mono',monospace;font-size:.6rem;margin-top:.3rem}
+
+/* ── Compliance matrix ── */
+.compliance-row{
+  display:flex;align-items:flex-start;gap:.8rem;
+  padding:.6rem .9rem;border-radius:var(--radius-sm);margin-bottom:.3rem;
+  border:1px solid var(--line);
+}
+.c-ok{background:rgba(61,201,140,.04);border-color:rgba(61,201,140,.2)}
+.c-warn{background:rgba(240,112,64,.04);border-color:rgba(240,112,64,.25)}
+.c-icon{font-size:1rem;margin-top:1px}
+.c-law{font-weight:600;font-size:.82rem;margin-bottom:2px}
+.c-detail{font-size:.72rem;color:var(--mid)}
+.c-penalty{font-size:.67rem;color:var(--dim);margin-left:auto;text-align:right;min-width:130px;flex-shrink:0}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+/* ── Spinner ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(232,184,75,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{display:flex;align-items:center;gap:.6rem;padding:.6rem;color:var(--mid);font-size:.8rem}
+
+/* ── Stat grid for GSTR ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1rem}
+.stat-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem 1rem}
+.stat-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:.2rem}
+.stat-val{font-family:'Instrument Serif',serif;font-size:1.5rem}
+
+/* ── Alert banner ── */
+.alert-banner{
+  background:var(--red-d);border:1px solid rgba(232,84,106,.4);
+  border-radius:var(--radius-sm);padding:.6rem 1rem;
+  display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--red);
+  margin-bottom:.8rem;
+}
+
+/* ── Quick ref ── */
+.qref-row{
+  display:flex;gap:.8rem;padding:.45rem .8rem;background:var(--card);
+  border-radius:var(--radius-sm);margin-bottom:.3rem;
+  border-left:3px solid var(--line);
+}
+.qref-rate{min-width:90px;font-weight:600;font-size:.78rem}
+.qref-items{font-size:.76rem;color:var(--mid)}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">AccuLedger</div>
+    <div class="logo-sub">Pro · GST Fraud Detection</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="goto('dashboard')">
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="goto('search')">
+      <span class="nav-icon">🔍</span> Product Search
+    </div>
+    <div class="nav-item" onclick="goto('hsn')">
+      <span class="nav-icon">📦</span> HSN Code Lookup
+    </div>
+    <div class="nav-item" onclick="goto('calculator')">
+      <span class="nav-icon">🧾</span> Tax Calculator
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Books</div>
+    <div class="nav-item" onclick="goto('companies')">
+      <span class="nav-icon">🏢</span> Companies
+    </div>
+    <div class="nav-item" onclick="goto('ledgers')">
+      <span class="nav-icon">📒</span> Ledger Manager
+    </div>
+    <div class="nav-item" onclick="goto('voucher')">
+      <span class="nav-icon">📝</span> New Entry
+    </div>
+    <div class="nav-item" onclick="goto('vouchers')">
+      <span class="nav-icon">📋</span> All Entries
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Review</div>
+    <div class="nav-item" onclick="goto('investigate')">
+      <span class="nav-icon">🔍</span> Fraud Investigation
+    </div>
+    <div class="nav-item" onclick="goto('backtrack')">
+      <span class="nav-icon">🔗</span> Why Flagged?
+    </div>
+    <div class="nav-item" onclick="goto('gstr')">
+      <span class="nav-icon">📊</span> GSTR Check
+    </div>
+    <div class="nav-item" onclick="goto('compliance')">
+      <span class="nav-icon">⚖️</span> Compliance
+    </div>
+    <div class="nav-item" onclick="goto('hsn-browse')">
+      <span class="nav-icon">📁</span> Browse HSN Data
+    </div>
+    <div class="nav-item" onclick="goto('audit')">
+      <span class="nav-icon">🔐</span> Audit Log
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div><span class="db-dot"></span> SQLite · acculedger.db</div>
+    <div style="margin-top:4px">AccuLedger Pro · 2026</div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- Company bar -->
+  <div class="company-bar">
+    <span style="font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;white-space:nowrap">Active Company</span>
+    <select id="companySelect" onchange="setCompany(this.value)">
+      <option value="">Loading...</option>
+    </select>
+    <span class="co-badge" id="coGstin">—</span>
+    <div class="txn-toggle">
+      <button class="txn-btn active" id="btnLocal" onclick="setTxn(false)">Local (CGST+SGST)</button>
+      <button class="txn-btn" id="btnIGST"  onclick="setTxn(true)">Inter-State (IGST)</button>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero">
+      <div class="hero-title">GST Fraud Detection Platform</div>
+      <div class="hero-sub">Every entry checked. Every risk flagged. Every rupee protected.</div>
+      <div class="hero-tags">
+        <span class="tag tag-b">Rules Check &lt;2ms</span>
+        <span class="tag tag-b">Risk Scoring &lt;5ms</span>
+        <span class="tag tag-b">Pattern Check &lt;8ms</span>
+        <span class="tag tag-g">Duplicate Check &lt;10ms</span>
+        <span class="tag tag-gold">GSTR-2B Reconciliation</span>
+        <span class="tag tag-gold">Merkle Audit Chain</span>
+        <span class="tag tag-g">DPDP 2023 Ready</span>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi r"><div class="kpi-lbl">High Risk Entries</div><div class="kpi-val" id="kpiHigh">—</div><div class="kpi-note" id="kpiExposure">Loading…</div></div>
+      <div class="kpi o"><div class="kpi-lbl">Medium Risk</div><div class="kpi-val" id="kpiMed">—</div><div class="kpi-note">Needs CA review</div></div>
+      <div class="kpi g"><div class="kpi-lbl">Verified Clean</div><div class="kpi-val" id="kpiLow">—</div><div class="kpi-note">Checked &amp; cleared</div></div>
+      <div class="kpi b"><div class="kpi-lbl">Total Entries</div><div class="kpi-val" id="kpiTotal">—</div><div class="kpi-note" id="kpiVal">—</div></div>
+    </div>
+
+    <div id="alertBanner" style="display:none" class="alert-banner">
+      🚨 <span id="alertText"></span>
+    </div>
+
+    <div class="shdr">🔴 High Risk Entries — Immediate Attention Needed</div>
+    <div class="tbl-wrap" id="dashHighRisk">
+      <div class="loading-row"><span class="spinner"></span> Loading…</div>
+    </div>
+
+    <div class="shdr" style="margin-top:1.5rem">How Each Entry Is Checked</div>
+    <div class="pipeline">
+      <div class="pipe-node">
+        <div class="pipe-title" style="color:var(--blu)">Rules Check</div>
+        <div class="pipe-desc">GSTIN format · Missing fields · HSN-GST mismatch · Balance check</div>
+        <div class="pipe-lat" style="color:var(--grn)">&lt;2ms · Always runs</div>
+      </div>
+      <div class="pipe-node">
+        <div class="pipe-title" style="color:var(--red)">Risk Scoring</div>
+        <div class="pipe-desc">New GSTIN · Round amounts · March rush · Party history · 47 factors</div>
+        <div class="pipe-lat" style="color:var(--blu)">&lt;5ms · Runs on save</div>
+      </div>
+      <div class="pipe-node">
+        <div class="pipe-title" style="color:var(--ora)">Unusual Patterns</div>
+        <div class="pipe-desc">Compares each entry to your own company's history — flags outliers</div>
+        <div class="pipe-lat" style="color:var(--blu)">&lt;8ms · Per company</div>
+      </div>
+      <div class="pipe-node">
+        <div class="pipe-title" style="color:var(--grn)">Duplicate Check</div>
+        <div class="pipe-desc">Detects same invoice submitted multiple times, even with different wording</div>
+        <div class="pipe-lat" style="color:var(--blu)">&lt;10ms · Per save</div>
+      </div>
+      <div class="pipe-node">
+        <div class="pipe-title" style="color:var(--gold)">Expert Advice</div>
+        <div class="pipe-desc">Plain-English explanation of what to do about flagged entries</div>
+        <div class="pipe-lat" style="color:var(--gold)">On demand</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRODUCT SEARCH ═══ -->
+  <div class="page" id="page-search">
+    <div class="shdr">🔍 Search by Product Name → Get HSN Code &amp; GST Rate</div>
+    <div class="search-wrap">
+      <div class="search-row">
+        <div class="field">
+          <label>Product Name</label>
+          <input type="text" id="searchQ" placeholder="e.g. Laptop, Paneer, Mustard Oil, Shampoo…" oninput="searchHSN()" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Filter by GST Rate</label>
+          <select id="searchGstFilter" onchange="searchHSN()">
+            <option value="">All Rates</option>
+            <option value="0">0% — Exempt</option>
+            <option value="3">3%</option>
+            <option value="5">5%</option>
+            <option value="12">12%</option>
+            <option value="18">18%</option>
+            <option value="28">28%</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Max Results</label>
+          <select id="searchLimit" onchange="searchHSN()">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="searchTime" style="font-size:.7rem;color:var(--dim);margin-bottom:.6rem"></div>
+    <div id="searchResults"></div>
+
+    <div id="searchQuickRef">
+      <div class="shdr">GST Rate Quick Reference</div>
+      <div class="qref-row" style="border-left-color:var(--grn)"><div class="qref-rate" style="color:var(--grn)">0% Exempt</div><div class="qref-items">Rice, Wheat, Fresh Vegetables, Milk, Eggs, Books, Salt, Dal, Pulses</div></div>
+      <div class="qref-row" style="border-left-color:var(--blu)"><div class="qref-rate" style="color:var(--blu)">3%</div><div class="qref-items">Gold &amp; Silver Jewellery, Precious Stones, Diamonds</div></div>
+      <div class="qref-row" style="border-left-color:var(--gold)"><div class="qref-rate" style="color:var(--gold)">5%</div><div class="qref-items">Sugar, Tea, Coffee, Cooking Oils, Flour, Medicines (some), T-Shirts</div></div>
+      <div class="qref-row" style="border-left-color:var(--ora)"><div class="qref-rate" style="color:var(--ora)">12%</div><div class="qref-items">Butter, Cheese, Fruit Juices, Biscuits, Bread, LED Bulbs, Medicines, Pens</div></div>
+      <div class="qref-row" style="border-left-color:var(--red)"><div class="qref-rate" style="color:var(--red)">18%</div><div class="qref-items">Laptops, Phones, Electronics, Soaps, Shampoos, Furniture, Most Packaged Foods</div></div>
+      <div class="qref-row" style="border-left-color:var(--pur)"><div class="qref-rate" style="color:var(--pur)">28%</div><div class="qref-items">AC, Cars, Bikes, Cement, Chocolate, Luxury Cosmetics, Premium Sweets</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ HSN CODE LOOKUP ═══ -->
+  <div class="page" id="page-hsn">
+    <div class="shdr">📦 Enter HSN Code → See All Matching Products &amp; GST Rate</div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="form-row" style="align-items:end">
+        <div class="field">
+          <label>HSN Code (4–8 digits)</label>
+          <input type="text" id="hsnCodeInput" placeholder="e.g. 8471, 1006, 3304" maxlength="8" oninput="lookupHSN()">
+        </div>
+        <div></div>
+      </div>
+    </div>
+    <div id="hsnResults"></div>
+
+    <div class="shdr">HSN Code Structure Guide</div>
+    <div style="display:grid;gap:.3rem">
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Chapter (2 digits)</div>
+        <div style="font-size:.78rem;color:var(--mid)">84 = Nuclear reactors, boilers, machinery &amp; computers</div>
+      </div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Heading (4 digits)</div>
+        <div style="font-size:.78rem;color:var(--mid)">8471 = Computers and data processing machines</div>
+      </div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Sub-heading (6 digits)</div>
+        <div style="font-size:.78rem;color:var(--mid)">8471.30 = Portable computers weighing less than 10kg</div>
+      </div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Tariff item (8 digits)</div>
+        <div style="font-size:.78rem;color:var(--mid)">8471.30.10 = Laptops specifically</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAX CALCULATOR ═══ -->
+  <div class="page" id="page-calculator">
+    <div class="shdr">🧾 GST Tax Calculator</div>
+    <div class="form-row" style="align-items:start">
+      <div class="form-grid">
+        <div class="note note-info" style="margin-bottom:.5rem">
+          Type a product name below to auto-fill its GST rate, or enter details manually.
+        </div>
+        <div class="field">
+          <label>Product Name (optional — to auto-fill GST rate)</label>
+          <input type="text" id="calcProduct" placeholder="e.g. Laptop, Shampoo, Gold Jewellery…" oninput="calcSearch()">
+        </div>
+        <div id="calcSuggestions" style="margin-top:-.4rem"></div>
+        <div class="form-row">
+          <div class="field">
+            <label>HSN Code</label>
+            <input type="text" id="calcHsn" placeholder="e.g. 8471">
+          </div>
+          <div class="field">
+            <label>GST Rate (%)</label>
+            <select id="calcRate" onchange="computeTax()">
+              <option value="0">0%</option>
+              <option value="3">3%</option>
+              <option value="5">5%</option>
+              <option value="12">12%</option>
+              <option value="18" selected>18%</option>
+              <option value="28">28%</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Base Amount (₹)</label>
+            <input type="number" id="calcBase" placeholder="10000" oninput="computeTax()" min="0" step="100">
+          </div>
+          <div class="field">
+            <label>Quantity</label>
+            <input type="number" id="calcQty" value="1" min="1" oninput="computeTax()">
+          </div>
+        </div>
+      </div>
+
+      <div class="tax-box" id="taxResult">
+        <div style="font-family:'Instrument Serif',serif;color:var(--gold);font-size:1rem;margin-bottom:.8rem">Tax Breakdown</div>
+        <div class="tax-row"><span class="tax-label">Base Amount</span><span class="tax-val" id="txBase">₹0.00</span></div>
+        <div class="tax-row"><span class="tax-label">GST Rate</span><span id="txRate">—</span></div>
+        <div id="txBreakdown"></div>
+        <div class="tax-row total-row">
+          <span class="tax-label" style="color:var(--gold);font-weight:600">Invoice Total</span>
+          <span class="tax-total-val" id="txTotal">₹0.00</span>
+        </div>
+        <div style="font-size:.65rem;color:var(--dim);margin-top:.5rem" id="txMeta"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ COMPANIES ═══ -->
+  <div class="page" id="page-companies">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('companies','list')">📋 All Companies</div>
+      <div class="tab" onclick="switchTab('companies','create')">➕ Add Company</div>
+    </div>
+
+    <div class="tab-panel active" id="companies-list">
+      <div id="companiesList"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
+    </div>
+
+    <div class="tab-panel" id="companies-create">
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="field"><label>Company Name *</label><input type="text" id="coName" placeholder="Acme Industries Pvt Ltd"></div>
+            <div class="field"><label>GSTIN * (15 characters)</label><input type="text" id="coGstin2" placeholder="27AABCD1234E1ZX" maxlength="15"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>PAN * (10 characters)</label><input type="text" id="coPan" placeholder="AABCD1234E" maxlength="10"></div>
+            <div class="field"><label>State *</label>
+              <select id="coState">
+                <option value="Gujarat">Gujarat</option>
+                <option value="Maharashtra" selected>Maharashtra</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Kerala">Kerala</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Financial Year Start</label><input type="date" id="coFyStart" value="2025-04-01"></div>
+            <div class="field"><label>Currency</label>
+              <select id="coCurr"><option>INR</option><option>USD</option><option>EUR</option></select>
+            </div>
+          </div>
+          <div id="coCreateMsg"></div>
+          <div><button class="btn btn-primary" onclick="createCompany()">✅ Create Company</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LEDGERS ═══ -->
+  <div class="page" id="page-ledgers">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('ledgers','tree')">🌳 Chart of Accounts</div>
+      <div class="tab" onclick="switchTab('ledgers','add')">➕ Add Ledger</div>
+    </div>
+
+    <div class="tab-panel active" id="ledgers-tree">
+      <div id="ledgerTree"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
+      <div id="ledgerSummary" style="margin-top:.8rem"></div>
+    </div>
+
+    <div class="tab-panel" id="ledgers-add">
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="field"><label>Ledger Name *</label><input type="text" id="lName" placeholder="HDFC Bank Current A/c"></div>
+            <div class="field"><label>Under Group *</label>
+              <select id="lGrp">
+                <option>Capital Account</option><option>Loans (Liability)</option>
+                <option>Current Liabilities</option><option>Fixed Assets</option>
+                <option>Current Assets</option><option>Purchase Accounts</option>
+                <option>Sales Accounts</option><option>Direct Expenses</option>
+                <option>Indirect Expenses</option><option>Direct Income</option>
+                <option>Bank Accounts</option><option>Cash-in-Hand</option>
+                <option>Sundry Debtors</option><option>Sundry Creditors</option>
+                <option>Duties &amp; Taxes</option><option>Provisions</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Opening Balance (₹)</label><input type="number" id="lOb" value="0" step="100"></div>
+            <div class="field"><label>Balance Type</label>
+              <select id="lBt"><option>Debit</option><option>Credit</option></select>
+            </div>
+          </div>
+          <div class="field"><label><input type="checkbox" id="lGstApplicable"> &nbsp;GST Applicable (for party ledgers)</label></div>
+          <div id="ledgerAddMsg"></div>
+          <div><button class="btn btn-primary" onclick="createLedger()">➕ Add Ledger</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW VOUCHER ═══ -->
+  <div class="page" id="page-voucher">
+    <div class="shdr">📝 New Journal Entry</div>
+    <div class="note note-info">Every entry is automatically checked for issues when you save it.</div>
+
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-row cols-3">
+          <div class="field">
+            <label>Entry Type *</label>
+            <select id="vType">
+              <option>Purchase</option><option>Sales</option><option>Payment</option>
+              <option>Receipt</option><option>Journal</option><option>Contra</option>
+              <option>Debit Note</option><option>Credit Note</option>
+            </select>
+          </div>
+          <div class="field"><label>Date *</label><input type="date" id="vDate" value=""></div>
+          <div class="field"><label>Invoice Number</label><input type="text" id="vInv" placeholder="INV-2026-001"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Party Name *</label><input type="text" id="vParty" placeholder="Vendor or Customer name"></div>
+          <div class="field"><label>Party GSTIN</label><input type="text" id="vGstin" placeholder="27AABCD1234E1ZX" maxlength="15"></div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="field"><label>GSTIN Age (days)</label><input type="number" id="vGstinAge" value="365" min="0"></div>
+          <div class="field"><label>HSN Code</label>
+            <select id="vHsn">
+              <option value="">— None —</option>
+              <option value="8471">8471 — Computers</option>
+              <option value="8517">8517 — Mobile Phones</option>
+              <option value="8528">8528 — Television</option>
+              <option value="8415">8415 — Air Conditioner</option>
+              <option value="3004">3004 — Medicines</option>
+              <option value="6109">6109 — T-Shirts</option>
+              <option value="4901">4901 — Books</option>
+              <option value="2710">2710 — Petroleum</option>
+              <option value="9403">9403 — Furniture</option>
+              <option value="0901">0901 — Coffee</option>
+            </select>
+          </div>
+          <div class="field"><label>GST Rate (%)</label>
+            <select id="vGst" onchange="autoCalcTax()">
+              <option value="0">0%</option><option value="3">3%</option>
+              <option value="5">5%</option><option value="12">12%</option>
+              <option value="18" selected>18%</option><option value="28">28%</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="field"><label>Base Amount (₹) *</label><input type="number" id="vBase" placeholder="10000" oninput="autoCalcTax()" min="0" step="100"></div>
+          <div class="field"><label>Tax Amount (₹)</label><input type="number" id="vTax" placeholder="1800" min="0" step="10"></div>
+          <div class="field"><label>Total Amount (₹)</label><input type="number" id="vTotal" placeholder="11800" min="0" step="100"></div>
+        </div>
+        <div class="field"><label>Narration / Description</label><textarea id="vNarr" placeholder="Purchase of goods as per PO No. 1234 from Sunrise Traders"></textarea></div>
+
+        <div id="voucherMsg"></div>
+        <div>
+          <button class="btn btn-primary" onclick="saveVoucher()">💾 Save &amp; Check Entry</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="voucherResult" style="display:none;margin-top:1rem"></div>
+  </div>
+
+  <!-- ═══ ALL VOUCHERS ═══ -->
+  <div class="page" id="page-vouchers">
+    <div class="shdr">📋 All Entries</div>
+    <div class="card" style="margin-bottom:.8rem">
+      <div class="form-row cols-3" style="align-items:end">
+        <div class="field"><label>Risk Level</label>
+          <select id="filterRisk" onchange="loadVouchers()">
+            <option value="">All</option><option value="High">High Risk</option>
+            <option value="Medium">Medium Risk</option><option value="Low">Cleared</option>
+          </select>
+        </div>
+        <div class="field"><label>Entry Type</label>
+          <select id="filterType" onchange="loadVouchers()">
+            <option value="">All Types</option>
+            <option>Purchase</option><option>Sales</option><option>Payment</option>
+            <option>Receipt</option><option>Journal</option><option>Contra</option>
+          </select>
+        </div>
+        <div class="field"><label>Search Party</label>
+          <input type="text" id="filterSearch" placeholder="Party name…" oninput="loadVouchers()">
+        </div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" id="vouchersTable">
+      <div class="loading-row"><span class="spinner"></span> Loading…</div>
+    </div>
+    <div class="pagination" id="voucherPagination"></div>
+  </div>
+
+  <!-- ═══ FRAUD INVESTIGATION ═══ -->
+  <div class="page" id="page-investigate">
+    <div class="shdr">🔍 Fraud Investigation — High Risk Entries</div>
+    <div id="investigateList"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
+  </div>
+
+  <!-- ═══ BACKTRACK ═══ -->
+  <div class="page" id="page-backtrack">
+    <div class="shdr">🔗 Why Was This Entry Flagged?</div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="form-row" style="align-items:end">
+        <div class="field">
+          <label>Select Entry to Investigate</label>
+          <select id="btVoucherSelect" onchange="loadBacktrack()">
+            <option value="">— Choose an entry —</option>
+          </select>
+        </div>
+        <div></div>
+      </div>
+    </div>
+    <div id="backtrackResult"></div>
+  </div>
+
+  <!-- ═══ GSTR ═══ -->
+  <div class="page" id="page-gstr">
+    <div class="shdr">📊 GSTR-2B Check — ITC Matching</div>
+    <div class="stat-grid" id="gstrStats">
+      <div class="stat-box"><div class="stat-lbl">Total Entries</div><div class="stat-val">—</div></div>
+      <div class="stat-box"><div class="stat-lbl">Matched</div><div class="stat-val" style="color:var(--grn)">—</div></div>
+      <div class="stat-box"><div class="stat-lbl">Not Found in GSTR-2B</div><div class="stat-val" style="color:var(--red)">—</div></div>
+      <div class="stat-box"><div class="stat-lbl">ITC at Risk</div><div class="stat-val" style="color:var(--red)">—</div></div>
+    </div>
+    <div class="shdr">Entries Not Found in GSTR-2B — Do NOT claim ITC</div>
+    <div class="tbl-wrap" id="gstrTable">
+      <div class="loading-row"><span class="spinner"></span> Loading…</div>
+    </div>
+  </div>
+
+  <!-- ═══ COMPLIANCE ═══ -->
+  <div class="page" id="page-compliance">
+    <div class="shdr">⚖️ Compliance Status — 7 Legal Frameworks</div>
+
+    <div class="compliance-row c-ok"><span class="c-icon">✅</span><div><div class="c-law">DPDP Act 2023</div><div class="c-detail">Consent module · 72-hour erasure · Purpose limitation · DPO registered</div></div><div class="c-penalty">Up to ₹250 crore per violation</div></div>
+    <div class="compliance-row c-ok"><span class="c-icon">✅</span><div><div class="c-law">GST Act 2017 + CGST Rules</div><div class="c-detail">Field validation at save · 6-year archive · GSTR-2B reconciliation built-in</div></div><div class="c-penalty">ITC disallowance + prosecution</div></div>
+    <div class="compliance-row c-ok"><span class="c-icon">✅</span><div><div class="c-law">Income Tax Act 1961 + Rule 6F</div><div class="c-detail">8-year retention · Cash &gt;₹50k flagged · TDS ledger detection</div></div><div class="c-penalty">₹25,000 penalty per year</div></div>
+    <div class="compliance-row c-ok"><span class="c-icon">✅</span><div><div class="c-law">Companies Act 2013</div><div class="c-detail">Auditor read-only role · IFC checklist · Multi-location access</div></div><div class="c-penalty">NCLT proceedings · Director disqualification</div></div>
+    <div class="compliance-row c-warn"><span class="c-icon">⚠️</span><div><div class="c-law">PMLA 2002</div><div class="c-detail">Suspicious entry report trigger at score ≥80 · KYC encrypted storage · FIU-IND reporting</div></div><div class="c-penalty">₹1L–₹1Cr + 3 years imprisonment</div></div>
+    <div class="compliance-row c-ok"><span class="c-icon">✅</span><div><div class="c-law">FEMA / RBI</div><div class="c-detail">FEMA purpose code lookup · Cross-border entry flagging · SWIFT reference</div></div><div class="c-penalty">3× transaction compounding</div></div>
+    <div class="compliance-row c-ok"><span class="c-icon">✅</span><div><div class="c-law">ICAI Code of Ethics</div><div class="c-detail">Company-level isolation · Access log for ICAI audit · No cross-client data sharing</div></div><div class="c-penalty">CA licence cancellation</div></div>
+
+    <div class="shdr" style="margin-top:1.5rem">Security Architecture</div>
+    <div style="display:grid;gap:.3rem">
+      <div class="compliance-row c-ok" style="background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.2)">
+        <span class="c-icon">🔒</span>
+        <div><div class="c-law" style="color:var(--gold)">Merkle Chain Audit Log</div><div class="c-detail">sha256(prev||ts||action||record) — deletion breaks chain, verified on every read</div></div>
+      </div>
+      <div class="compliance-row c-ok" style="background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.2)">
+        <span class="c-icon">🔒</span>
+        <div><div class="c-law" style="color:var(--gold)">SQLite WAL Mode</div><div class="c-detail">Write-Ahead Logging — concurrent reads + writes without data corruption</div></div>
+      </div>
+      <div class="compliance-row c-ok" style="background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.2)">
+        <span class="c-icon">🔒</span>
+        <div><div class="c-law" style="color:var(--gold)">Fraud Risk Scoring — 47 Factors</div><div class="c-detail">GSTIN age · Round amounts · March rush · Party history · Amount patterns · Missing fields</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HSN BROWSE ═══ -->
+  <div class="page" id="page-hsn-browse">
+    <div class="shdr">📁 Browse & Manage HSN Product Database</div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('hsn-browse','browse')">Browse</div>
+      <div class="tab" onclick="switchTab('hsn-browse','add')">➕ Add Product</div>
+    </div>
+
+    <div class="tab-panel active" id="hsn-browse-browse">
+      <div class="card" style="margin-bottom:.8rem">
+        <div class="form-row cols-3" style="align-items:end">
+          <div class="field"><label>Search product</label><input type="text" id="browseSearch" placeholder="Search by name…" oninput="loadBrowse()"></div>
+          <div class="field"><label>GST Rate</label>
+            <select id="browseGst" onchange="loadBrowse()">
+              <option value="">All</option>
+              <option value="0">0%</option><option value="3">3%</option>
+              <option value="5">5%</option><option value="12">12%</option>
+              <option value="18">18%</option><option value="28">28%</option>
+            </select>
+          </div>
+          <div class="field"><label>Items per page</label>
+            <select id="browsePp" onchange="loadBrowse()">
+              <option value="25">25</option><option value="50" selected>50</option><option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="browseStats" style="font-size:.72rem;color:var(--dim);margin-bottom:.5rem"></div>
+      <div class="tbl-wrap" id="browseTable"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
+      <div class="pagination" id="browsePagination"></div>
+    </div>
+
+    <div class="tab-panel" id="hsn-browse-add">
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="field"><label>HSN Code *</label><input type="text" id="addHsnCode" placeholder="8471" maxlength="8"></div>
+            <div class="field"><label>Product Name *</label><input type="text" id="addHsnName" placeholder="Gaming Laptop"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>GST Rate (%) *</label>
+              <select id="addHsnGst">
+                <option value="0">0%</option><option value="3">3%</option>
+                <option value="5">5%</option><option value="12">12%</option>
+                <option value="18" selected>18%</option><option value="28">28%</option>
+              </select>
+            </div>
+            <div class="field"><label>Section</label><input type="text" id="addHsnSection" placeholder="XVI"></div>
+          </div>
+          <div class="field"><label>Chapter</label><input type="text" id="addHsnChapter" placeholder="84"></div>
+          <div id="addHsnMsg"></div>
+          <div><button class="btn btn-primary" onclick="addHsnItem()">✅ Add to Database</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AUDIT LOG ═══ -->
+  <div class="page" id="page-audit">
+    <div class="shdr">🔐 Tamper-Proof Audit Log</div>
+    <div id="auditChainStatus" class="note note-info" style="margin-bottom:1rem">Checking audit chain…</div>
+    <div style="display:flex;gap:.6rem;margin-bottom:1rem">
+      <button class="btn btn-secondary btn-sm" onclick="verifyChain()">🔗 Verify Chain Integrity</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadAudit()">🔄 Refresh</button>
+    </div>
+    <div id="auditEntries"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
+  </div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let state = {
+  company: null,
+  companies: [],
+  isIGST: false,
+  voucherPage: 0,
+  browsePage: 0,
+  searchTimer: null,
+};
+
+const API = '';  // same origin; FastAPI on port 8000
+
+// ════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════
+const fmt  = (n) => n == null ? '₹0' : '₹' + parseFloat(n).toLocaleString('en-IN', {maximumFractionDigits:0});
+const fmt2 = (n) => n == null ? '₹0.00' : '₹' + parseFloat(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2});
+const pct  = (n) => (parseFloat(n)*100).toFixed(1) + '%';
+
+function gstBadge(rate) {
+  const cls = {0:'gst-0',3:'gst-3',5:'gst-5',12:'gst-12',18:'gst-18',28:'gst-28'}[parseInt(rate)] || 'gst-18';
+  return `<span class="${cls}">GST ${parseInt(rate)}%</span>`;
+}
+
+function riskPill(level) {
+  if (level === 'High')   return `<span class="risk-high">High Risk</span>`;
+  if (level === 'Medium') return `<span class="risk-med">Medium</span>`;
+  return `<span class="risk-low">Clear</span>`;
+}
+
+async function api(path, opts={}) {
+  const res = await fetch(API + path, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({detail: 'Request failed'}));
+    throw new Error(err.detail || 'Error');
+  }
+  return res.json();
+}
+
+function showMsg(id, msg, type='info') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const cls = {ok:'note-ok',err:'note-err',warn:'note-warn',info:'note-info'}[type] || 'note-info';
+  el.innerHTML = `<div class="note ${cls}">${msg}</div>`;
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function goto(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelector(`.nav-item[onclick*="'${page}'"]`)?.classList.add('active');
+
+  // Load data for page
+  if (page === 'dashboard')    loadDashboard();
+  if (page === 'companies')    loadCompanies();
+  if (page === 'ledgers')      loadLedgers();
+  if (page === 'vouchers')     { state.voucherPage = 0; loadVouchers(); }
+  if (page === 'investigate')  loadInvestigate();
+  if (page === 'backtrack')    loadBacktrackOptions();
+  if (page === 'gstr')         loadGSTR();
+  if (page === 'audit')        { loadAudit(); verifyChain(); }
+  if (page === 'hsn-browse')   loadBrowse();
+}
+
+function switchTab(scope, tab) {
+  const panels = document.querySelectorAll(`[id^="${scope}-"]`);
+  const tabs   = document.querySelectorAll(`.tab`);
+  panels.forEach(p => p.classList.remove('active'));
+  document.getElementById(scope + '-' + tab)?.classList.add('active');
+  // tab highlighting by position
+  const tabEls = document.querySelectorAll(`#page-${scope} .tab`);
+  const idx = Array.from(tabEls).findIndex(t => t.onclick.toString().includes(tab));
+  tabEls.forEach((t,i) => t.classList.toggle('active', i === idx));
+}
+
+// ════════════════════════════════════════════
+// COMPANY
+// ════════════════════════════════════════════
+async function loadCompanySelector() {
+  const companies = await api('/api/companies');
+  state.companies = companies;
+  const sel = document.getElementById('companySelect');
+  sel.innerHTML = companies.map(c =>
+    `<option value="${c.id}" ${state.company?.id === c.id ? 'selected' : ''}>${c.name}</option>`
+  ).join('');
+  if (!state.company && companies.length > 0) {
+    setCompany(companies[0].id);
+  }
+  if (state.company) {
+    document.getElementById('coGstin').textContent = state.company.gstin || '—';
+  }
+}
+
+function setCompany(id) {
+  state.company = state.companies.find(c => c.id === id);
+  document.getElementById('coGstin').textContent = state.company?.gstin || '—';
+  // Reload current page data
+  const active = document.querySelector('.page.active')?.id?.replace('page-','');
+  if (active) goto(active);
+}
+
+function setTxn(isIGST) {
+  state.isIGST = isIGST;
+  document.getElementById('btnLocal').classList.toggle('active', !isIGST);
+  document.getElementById('btnIGST').classList.toggle('active', isIGST);
+}
+
+// ════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════
+async function loadDashboard() {
+  if (!state.company) return;
+  const stats = await api(`/api/vouchers/${state.company.id}/stats`);
+  document.getElementById('kpiHigh').textContent  = stats.high;
+  document.getElementById('kpiMed').textContent   = stats.medium;
+  document.getElementById('kpiLow').textContent   = stats.low;
+  document.getElementById('kpiTotal').textContent = stats.total;
+  document.getElementById('kpiExposure').textContent = '⚠ ' + fmt(stats.exposure) + ' exposure';
+  document.getElementById('kpiVal').textContent   = fmt(stats.total_value) + ' total';
+
+  // Alert banner
+  if (stats.high > 0) {
+    document.getElementById('alertBanner').style.display = 'flex';
+    document.getElementById('alertText').textContent =
+      `${stats.high} high-risk ${stats.high===1?'entry':'entries'} need your attention. ${fmt(stats.exposure)} in ITC at risk.`;
+  }
+
+  // High risk table
+  const data = await api(`/api/vouchers/${state.company.id}?risk=High&per_page=10`);
+  const rows = data.rows;
+  if (!rows.length) {
+    document.getElementById('dashHighRisk').innerHTML = '<div class="note note-ok" style="margin:.5rem">✅ No high-risk entries found. All clear!</div>';
+    return;
+  }
+  document.getElementById('dashHighRisk').innerHTML = `<table>
+    <thead><tr><th>Entry ID</th><th>Date</th><th>Party</th><th>Amount</th><th>Risk Score</th><th>Issue</th><th>Action</th></tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td><span style="font-family:'DM Mono',monospace;color:var(--gold)">${r.id}</span></td>
+      <td>${r.date}</td>
+      <td><b>${r.party_name || '—'}</b></td>
+      <td style="font-family:'DM Mono',monospace">${fmt(r.total_amount)}</td>
+      <td><span class="risk-high">${r.l2_score}/100</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;color:var(--ora)">${r.ai_flags || '—'}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="goto('investigate')">Investigate</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ════════════════════════════════════════════
+// PRODUCT SEARCH
+// ════════════════════════════════════════════
+let searchDebounce;
+function searchHSN() {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(_doSearch, 300);
+}
+
+async function _doSearch() {
+  const q = document.getElementById('searchQ').value.trim();
+  const gst = document.getElementById('searchGstFilter').value;
+  const limit = document.getElementById('searchLimit').value;
+  const resEl = document.getElementById('searchResults');
+  const qref  = document.getElementById('searchQuickRef');
+
+  if (!q) { resEl.innerHTML = ''; qref.style.display = 'block'; return; }
+  qref.style.display = 'none';
+  resEl.innerHTML = '<div class="loading-row"><span class="spinner"></span> Searching…</div>';
+
+  const t0 = Date.now();
+  const params = new URLSearchParams({q, limit});
+  if (gst) params.append('gst_rate', gst);
+
+  const results = await api('/api/hsn/search?' + params);
+  const elapsed = Date.now() - t0;
+
+  document.getElementById('searchTime').textContent =
+    results.length ? `${results.length} result${results.length>1?'s':''} · ${elapsed}ms` : '';
+
+  if (!results.length) {
+    resEl.innerHTML = '<div class="note note-warn">⚠ No results found. Try a different spelling or check the HSN browse tab.</div>';
+    return;
+  }
+
+  resEl.innerHTML = results.map((r,i) => {
+    const sim = Math.min(100, Math.round(r.similarity * 100));
+    const col = sim > 70 ? 'var(--grn)' : sim > 40 ? 'var(--ora)' : 'var(--red)';
+    const mpCls = {exact:'mp-exact',prefix:'mp-prefix',contains:'mp-contains',fuzzy:'mp-fuzzy'}[r.match_type] || 'mp-fuzzy';
+
+    const isIGST = state.isIGST;
+    const tax = r.gst_rate / 100;
+    const taxAmt = (1000 * tax).toFixed(2);
+    const cgst = isIGST ? 0 : (taxAmt/2).toFixed(2);
+    const sgst = isIGST ? 0 : (taxAmt/2).toFixed(2);
+    const igst = isIGST ? taxAmt : 0;
+    const total = (1000 + parseFloat(taxAmt)).toFixed(2);
+
+    return `<div class="result-card ${i===0?'top-result':''}">
+      <div class="result-row">
+        <div>
+          <div class="result-name">${r.item_name}</div>
+          <div class="result-meta">
+            <span class="hsn-code">HSN ${r.hsn_code}</span>
+            ${gstBadge(r.gst_rate)}
+            <span class="${mpCls}">${r.match_type}</span>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:.78rem">
+          <div style="color:var(--dim);font-size:.68rem">On ₹1,000 base</div>
+          <div style="color:var(--mid)">${isIGST ? 'IGST: ₹'+igst : 'CGST: ₹'+cgst+' + SGST: ₹'+sgst}</div>
+          <div style="font-weight:600">Total: ₹${total}</div>
+        </div>
+      </div>
+      <div class="sim-row">
+        <div class="sim-label">Match ${sim}%</div>
+        <div class="sim-bar-wrap"><div class="sim-bar" style="width:${sim}%;background:${col}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// HSN LOOKUP
+// ════════════════════════════════════════════
+let hsnDebounce;
+function lookupHSN() {
+  clearTimeout(hsnDebounce);
+  hsnDebounce = setTimeout(_doHsnLookup, 400);
+}
+
+async function _doHsnLookup() {
+  const code = document.getElementById('hsnCodeInput').value.trim();
+  const el = document.getElementById('hsnResults');
+  if (!code) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="loading-row"><span class="spinner"></span> Looking up…</div>';
+
+  const results = await api('/api/hsn/by-code/' + code);
+  if (!results.length) {
+    el.innerHTML = '<div class="note note-warn">⚠ No products found with this HSN code. You can add it in the Browse HSN Data tab.</div>';
+    return;
+  }
+
+  const gst = results[0].gst_rate;
+  el.innerHTML = `<div class="note note-ok">✓ HSN <b>${code}</b> found — ${results.length} product(s) · GST Rate: <b>${parseInt(gst)}%</b></div>
+  ${results.map(r => {
+    const tax = r.gst_rate / 100;
+    const taxAmt = (1000 * tax).toFixed(2);
+    const total = (1000 + parseFloat(taxAmt)).toFixed(2);
+    return `<div class="result-card">
+      <div class="result-row">
+        <div>
+          <div class="result-name">${r.item_name}</div>
+          <div class="result-meta"><span class="hsn-code">HSN ${r.hsn_code}</span>${gstBadge(r.gst_rate)}</div>
+        </div>
+        <div style="text-align:right;font-size:.78rem">
+          <div style="color:var(--dim);font-size:.68rem">On ₹1,000 base</div>
+          <div style="color:var(--mid)">${state.isIGST ? 'IGST: ₹'+taxAmt : 'CGST: ₹'+(taxAmt/2).toFixed(2)+' + SGST: ₹'+(taxAmt/2).toFixed(2)}</div>
+          <div style="font-weight:600">Total: ₹${total}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}`;
+}
+
+// ════════════════════════════════════════════
+// TAX CALCULATOR
+// ════════════════════════════════════════════
+let calcDebounce;
+function computeTax() {
+  const base = parseFloat(document.getElementById('calcBase').value) || 0;
+  const rate = parseFloat(document.getElementById('calcRate').value) || 0;
+  const qty  = parseInt(document.getElementById('calcQty').value) || 1;
+
+  const totalBase = base * qty;
+  const taxAmt    = Math.round(totalBase * rate / 100 * 100) / 100;
+  const total     = totalBase + taxAmt;
+  const isIGST    = state.isIGST;
+
+  document.getElementById('txBase').textContent = fmt2(totalBase);
+  document.getElementById('txRate').innerHTML = gstBadge(rate);
+  document.getElementById('txTotal').textContent = fmt2(total);
+  document.getElementById('txMeta').textContent =
+    `HSN: ${document.getElementById('calcHsn').value || 'N/A'} · ${isIGST ? 'Inter-State (IGST)' : 'Local (CGST+SGST)'}`;
+
+  if (isIGST) {
+    document.getElementById('txBreakdown').innerHTML = `
+      <div class="tax-row"><span class="tax-label">IGST (${rate}%)</span><span class="tax-val" style="color:var(--red)">${fmt2(taxAmt)}</span></div>`;
+  } else {
+    const half = Math.round(taxAmt / 2 * 100) / 100;
+    document.getElementById('txBreakdown').innerHTML = `
+      <div class="tax-row"><span class="tax-label">CGST (${rate/2}%)</span><span class="tax-val" style="color:var(--ora)">${fmt2(half)}</span></div>
+      <div class="tax-row"><span class="tax-label">SGST (${rate/2}%)</span><span class="tax-val" style="color:var(--ora)">${fmt2(half)}</span></div>`;
+  }
+}
+
+let calcSearchTimer;
+function calcSearch() {
+  clearTimeout(calcSearchTimer);
+  calcSearchTimer = setTimeout(_doCalcSearch, 350);
+}
+
+async function _doCalcSearch() {
+  const q = document.getElementById('calcProduct').value.trim();
+  const el = document.getElementById('calcSuggestions');
+  if (!q) { el.innerHTML = ''; return; }
+  const results = await api('/api/hsn/search?q=' + encodeURIComponent(q) + '&limit=4');
+  el.innerHTML = results.map(r => `
+    <div style="background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.4rem .7rem;margin-bottom:.2rem;cursor:pointer;font-size:.8rem;display:flex;gap:.6rem;align-items:center"
+      onclick="fillCalcFromResult('${r.hsn_code}','${parseInt(r.gst_rate)}')">
+      <span style="flex:1"><b>${r.item_name}</b></span>
+      <span class="hsn-code">HSN ${r.hsn_code}</span>
+      ${gstBadge(r.gst_rate)}
+    </div>
+  `).join('');
+}
+
+function fillCalcFromResult(hsn, gst) {
+  document.getElementById('calcHsn').value = hsn;
+  document.getElementById('calcRate').value = gst;
+  document.getElementById('calcSuggestions').innerHTML = '';
+  computeTax();
+}
+
+// ════════════════════════════════════════════
+// COMPANIES
+// ════════════════════════════════════════════
+async function loadCompanies() {
+  const companies = await api('/api/companies');
+  state.companies = companies;
+  const el = document.getElementById('companiesList');
+  if (!companies.length) {
+    el.innerHTML = '<div class="note note-info">No companies yet. Add one using the "Add Company" tab.</div>';
+    return;
+  }
+  el.innerHTML = companies.map(co => {
+    const isActive = state.company?.id === co.id;
+    return `<div class="card ${isActive ? 'ok' : ''}" style="margin-bottom:.5rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <span style="font-size:.95rem;font-weight:600">${co.name}</span>
+          ${isActive ? '<span class="co-badge" style="margin-left:.5rem">ACTIVE</span>' : ''}
+          <div style="font-size:.72rem;color:var(--mid);margin-top:3px">
+            ID: <code>${co.id}</code> · GSTIN: <code>${co.gstin}</code> · State: ${co.state}
+          </div>
+          <div style="font-size:.7rem;color:var(--dim)">FY Start: ${co.fy_start} · Currency: ${co.currency}</div>
+        </div>
+        <div style="display:flex;gap:.4rem">
+          <button class="btn btn-secondary btn-sm" onclick="setCompany('${co.id}');goto('dashboard')">Set Active</button>
+          ${co.id !== 'DEMO0001' ? `<button class="btn btn-danger btn-sm" onclick="deleteCompany('${co.id}')">Delete</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createCompany() {
+  const body = {
+    name:     document.getElementById('coName').value.trim(),
+    gstin:    document.getElementById('coGstin2').value.trim(),
+    pan:      document.getElementById('coPan').value.trim(),
+    state:    document.getElementById('coState').value,
+    fy_start: document.getElementById('coFyStart').value,
+    currency: document.getElementById('coCurr').value,
+  };
+  if (!body.name) return showMsg('coCreateMsg','Company name required','err');
+  try {
+    const res = await api('/api/companies', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    showMsg('coCreateMsg', `✅ Company created (ID: ${res.id}) with 14 default ledgers.`, 'ok');
+    await loadCompanySelector();
+  } catch(e) {
+    showMsg('coCreateMsg', '❌ ' + e.message, 'err');
+  }
+}
+
+async function deleteCompany(id) {
+  if (!confirm('Are you sure you want to delete this company?')) return;
+  await api('/api/companies/' + id, {method:'DELETE'});
+  await loadCompanySelector();
+  await loadCompanies();
+}
+
+// ════════════════════════════════════════════
+// LEDGERS
+// ════════════════════════════════════════════
+async function loadLedgers() {
+  if (!state.company) return;
+  const ledgers = await api('/api/ledgers/' + state.company.id);
+  const el = document.getElementById('ledgerTree');
+
+  if (!ledgers.length) {
+    el.innerHTML = '<div class="note note-info">No ledgers found.</div>';
+    return;
+  }
+
+  // Group
+  const groups = {};
+  ledgers.forEach(l => {
+    if (!groups[l.grp]) groups[l.grp] = [];
+    groups[l.grp].push(l);
+  });
+
+  el.innerHTML = Object.entries(groups).sort().map(([grp, items]) => {
+    const drTotal = items.filter(l=>l.balance_type==='Debit').reduce((s,l)=>s+l.opening_balance,0);
+    const crTotal = items.filter(l=>l.balance_type==='Credit').reduce((s,l)=>s+l.opening_balance,0);
+    return `<div class="ledger-group-header" onclick="toggleGroup(this)">
+      <span>📁 ${grp}</span>
+      <span style="font-size:.72rem;color:var(--mid)">DR ${fmt(drTotal)} · CR ${fmt(crTotal)}</span>
+    </div>
+    <div class="ledger-items">
+      ${items.map(l => `<div class="ledger-item">
+        <span>${l.name}${l.gst_applicable ? '<span class="tag tag-b" style="margin-left:4px;font-size:.58rem">GST</span>' : ''}</span>
+        <span class="${l.balance_type==='Debit'?'bal-dr':'bal-cr'}">${l.balance_type} ${fmt(l.opening_balance)}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  // Summary
+  const totalDr = ledgers.filter(l=>l.balance_type==='Debit').reduce((s,l)=>s+l.opening_balance,0);
+  const totalCr = ledgers.filter(l=>l.balance_type==='Credit').reduce((s,l)=>s+l.opening_balance,0);
+  const diff = totalDr - totalCr;
+  document.getElementById('ledgerSummary').innerHTML = `
+    <div style="display:flex;justify-content:flex-end;gap:2rem;padding:.6rem 1rem;background:var(--card);border-radius:var(--radius-sm);font-size:.8rem">
+      <span>Total Debit: <b style="color:var(--red)">${fmt(totalDr)}</b></span>
+      <span>Total Credit: <b style="color:var(--grn)">${fmt(totalCr)}</b></span>
+      <span>Difference: <b style="color:${Math.abs(diff)<1?'var(--grn)':'var(--red)'}">${fmt(diff)}</b></span>
+    </div>`;
+}
+
+function toggleGroup(el) {
+  el.nextElementSibling?.classList.toggle('open');
+}
+
+async function createLedger() {
+  if (!state.company) return showMsg('ledgerAddMsg','Select a company first','err');
+  const body = {
+    company_id:       state.company.id,
+    name:             document.getElementById('lName').value.trim(),
+    grp:              document.getElementById('lGrp').value,
+    opening_balance:  parseFloat(document.getElementById('lOb').value) || 0,
+    balance_type:     document.getElementById('lBt').value,
+    gst_applicable:   document.getElementById('lGstApplicable').checked,
+  };
+  if (!body.name) return showMsg('ledgerAddMsg','Ledger name required','err');
+  try {
+    await api('/api/ledgers', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    showMsg('ledgerAddMsg', `✅ Ledger '${body.name}' added under '${body.grp}'`, 'ok');
+    loadLedgers();
+  } catch(e) {
+    showMsg('ledgerAddMsg', '❌ ' + e.message, 'err');
+  }
+}
+
+// ════════════════════════════════════════════
+// VOUCHERS
+// ════════════════════════════════════════════
+function autoCalcTax() {
+  const base = parseFloat(document.getElementById('vBase').value) || 0;
+  const rate = parseFloat(document.getElementById('vGst').value) || 0;
+  const tax  = Math.round(base * rate / 100 * 100) / 100;
+  document.getElementById('vTax').value   = tax.toFixed(2);
+  document.getElementById('vTotal').value = (base + tax).toFixed(2);
+}
+
+async function saveVoucher() {
+  if (!state.company) return showMsg('voucherMsg','Select a company first','err');
+  const body = {
+    company_id:    state.company.id,
+    date:          document.getElementById('vDate').value,
+    type:          document.getElementById('vType').value,
+    party_name:    document.getElementById('vParty').value.trim(),
+    gstin:         document.getElementById('vGstin').value.trim(),
+    gstin_age_days:parseInt(document.getElementById('vGstinAge').value)||365,
+    invoice_number:document.getElementById('vInv').value.trim(),
+    hsn_code:      document.getElementById('vHsn').value,
+    gst_rate:      parseFloat(document.getElementById('vGst').value)||18,
+    base_amount:   parseFloat(document.getElementById('vBase').value)||0,
+    tax_amount:    parseFloat(document.getElementById('vTax').value)||0,
+    total_amount:  parseFloat(document.getElementById('vTotal').value)||0,
+    narration:     document.getElementById('vNarr').value.trim(),
+    is_igst:       state.isIGST,
+  };
+  if (!body.date)          return showMsg('voucherMsg','Date is required','err');
+  if (!body.party_name)    return showMsg('voucherMsg','Party name is required','err');
+  if (body.base_amount<=0) return showMsg('voucherMsg','Amount must be greater than 0','err');
+
+  showMsg('voucherMsg','<span class="spinner"></span> Checking entry…','info');
+
+  try {
+    const res = await api('/api/vouchers', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+
+    const cls = res.risk_level==='High' ? 'danger' : res.risk_level==='Medium' ? 'warn' : 'ok';
+    const icon = res.risk_level==='High' ? '🔴' : res.risk_level==='Medium' ? '🟡' : '🟢';
+    const tx   = res.tax_breakdown;
+
+    document.getElementById('voucherMsg').innerHTML = '';
+    const resultEl = document.getElementById('voucherResult');
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `<div class="card ${cls}">
+      <div style="font-weight:700;margin-bottom:.5rem">${icon} Entry saved — ${res.risk_level} Risk · Score: ${res.l2_score}/100</div>
+      ${res.l1_flags ? `<div class="note note-warn">${res.l1_flags}</div>` : ''}
+      ${res.l4_duplicate !== 'Clear' ? `<div class="note note-warn">⚠ ${res.l4_duplicate}</div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.5rem;font-size:.78rem">
+        <div><span style="color:var(--dim)">Risk Score</span><br><b>${res.l2_score}/100</b></div>
+        <div><span style="color:var(--dim)">Pattern</span><br><b>${res.l3_anomaly < -0.2 ? '⚠ Unusual' : '✓ Normal'}</b></div>
+        <div><span style="color:var(--dim)">Duplicate</span><br><b>${res.l4_duplicate}</b></div>
+        <div><span style="color:var(--dim)">Tax Total</span><br><b style="color:var(--gold)">${fmt2(tx['Invoice Total'])}</b></div>
+      </div>
+      ${res.risk_level==='High' ? `<div class="note note-err" style="margin-top:.5rem">⚠ High risk — ITC claim on this entry may be disallowed. Review before filing GSTR-3B.</div>` : ''}
+    </div>`;
+  } catch(e) {
+    showMsg('voucherMsg', '❌ ' + e.message, 'err');
+  }
+}
+
+async function loadVouchers() {
+  if (!state.company) return;
+  const risk   = document.getElementById('filterRisk')?.value || '';
+  const vtype  = document.getElementById('filterType')?.value || '';
+  const search = document.getElementById('filterSearch')?.value || '';
+  const perPage = 25;
+
+  const params = new URLSearchParams({page:state.voucherPage, per_page:perPage});
+  if (risk)   params.append('risk', risk);
+  if (vtype)  params.append('vtype', vtype);
+  if (search) params.append('search', search);
+
+  const data = await api(`/api/vouchers/${state.company.id}?` + params);
+  const el = document.getElementById('vouchersTable');
+
+  if (!data.rows.length) {
+    el.innerHTML = '<div style="padding:1rem;color:var(--mid);text-align:center">No entries found.</div>';
+    document.getElementById('voucherPagination').innerHTML = '';
+    return;
+  }
+
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>ID</th><th>Date</th><th>Type</th><th>Party</th>
+      <th>Base</th><th>Tax</th><th>Total</th><th>Risk</th><th>Score</th><th>Status</th>
+    </tr></thead>
+    <tbody>${data.rows.map(r => `<tr>
+      <td><span style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--gold)">${r.id}</span></td>
+      <td>${r.date}</td>
+      <td>${r.type}</td>
+      <td>${r.party_name || '—'}</td>
+      <td style="font-family:'DM Mono',monospace">${fmt(r.base_amount)}</td>
+      <td style="font-family:'DM Mono',monospace">${fmt(r.tax_amount)}</td>
+      <td style="font-family:'DM Mono',monospace">${fmt(r.total_amount)}</td>
+      <td>${riskPill(r.risk_level)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.75rem">${r.l2_score}</td>
+      <td style="font-size:.72rem;color:var(--mid)">${r.review_status}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+
+  // Pagination
+  const totalPages = Math.ceil(data.total / perPage);
+  document.getElementById('voucherPagination').innerHTML = `
+    <button class="page-btn" onclick="state.voucherPage--;loadVouchers()" ${state.voucherPage===0?'disabled':''}>← Prev</button>
+    <span class="page-info">Page ${state.voucherPage+1} of ${totalPages} · ${data.total} total</span>
+    <button class="page-btn" onclick="state.voucherPage++;loadVouchers()" ${state.voucherPage>=totalPages-1?'disabled':''}>Next →</button>`;
+}
+
+// ════════════════════════════════════════════
+// FRAUD INVESTIGATION
+// ════════════════════════════════════════════
+async function loadInvestigate() {
+  if (!state.company) return;
+  const data = await api(`/api/vouchers/${state.company.id}?risk=High&per_page=20`);
+  const el = document.getElementById('investigateList');
+
+  if (!data.rows.length) {
+    el.innerHTML = '<div class="note note-ok">✅ No high-risk entries found. All clear!</div>';
+    return;
+  }
+
+  el.innerHTML = data.rows.map(r => {
+    const age = r.gstin_age_days || 365;
+    const ageColor = age < 30 ? 'var(--red)' : age < 90 ? 'var(--ora)' : 'var(--grn)';
+    return `<div class="card danger" style="margin-bottom:.7rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <span style="font-family:'DM Mono',monospace;color:var(--gold)">${r.id}</span>
+          &nbsp;<span class="risk-high">Score ${r.l2_score}/100</span>
+          <div style="font-size:.95rem;font-weight:600;margin-top:.3rem">${r.party_name || '—'}</div>
+          <div style="font-size:.72rem;color:var(--mid);margin-top:2px">
+            GSTIN: <code>${r.gstin || '—'}</code> ·
+            GSTIN Age: <b style="color:${ageColor}">${age} days</b> ·
+            Date: ${r.date}
+          </div>
+          <div style="font-size:.72rem;color:var(--mid)">
+            Base: ${fmt(r.base_amount)} · Tax: ${fmt(r.tax_amount)} @ ${parseInt(r.gst_rate)}% · Total: ${fmt(r.total_amount)}
+          </div>
+          ${r.is_round_number ? '<span class="tag tag-gold" style="font-size:.6rem;margin-top:4px">Round Number</span>' : ''}
+          ${r.is_march_rush ? '&nbsp;<span class="tag" style="background:var(--red-d);border:1px solid rgba(232,84,106,.3);color:var(--red);font-size:.6rem">March Rush</span>' : ''}
+          ${r.gstr2b_match === 'Not Found' ? '&nbsp;<span class="tag" style="background:var(--red-d);border:1px solid rgba(232,84,106,.3);color:var(--red);font-size:.6rem">❌ Not in GSTR-2B</span>' : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <button class="btn btn-secondary btn-sm" onclick="goBacktrack('${r.id}')">🔗 Why Flagged?</button>
+          <button class="btn btn-secondary btn-sm" onclick="verifyGSTIN('${r.gstin||''}','${r.id}')">🌐 Check Supplier</button>
+        </div>
+      </div>
+      <div id="gstn-result-${r.id}" style="margin-top:.5rem"></div>
+      ${r.l1_flags ? `<div class="note note-warn" style="margin-top:.5rem">${r.l1_flags}</div>` : ''}
+      <div style="font-size:.72rem;color:var(--ora);margin-top:.3rem">${r.ai_flags || ''}</div>
+    </div>`;
+  }).join('');
+}
+
+async function verifyGSTIN(gstin, vid) {
+  if (!gstin || gstin.length !== 15) {
+    document.getElementById('gstn-result-' + vid).innerHTML = '<div class="note note-warn">No valid GSTIN to verify.</div>';
+    return;
+  }
+  document.getElementById('gstn-result-' + vid).innerHTML = '<div class="loading-row"><span class="spinner"></span> Checking with GSTN…</div>';
+  const res = await api('/api/gstn/verify/' + gstin);
+  const box = document.getElementById('gstn-result-' + vid);
+  box.innerHTML = `<div class="gstn-box">
+    <div style="color:${res.alert ? 'var(--red)' : 'var(--grn)'};font-weight:600;margin-bottom:.4rem">
+      ${res.alert ? '⚠ GSTN ALERT' : '✓ GSTN Verified'}</div>
+    <div class="gstn-row"><span class="gstn-key">GSTIN</span><span>${res.gstin}</span></div>
+    <div class="gstn-row"><span class="gstn-key">Registered On</span><span style="color:${res.alert?'var(--red)':'var(--grn)'}">${res.registration_date} (${res.age_days} days ago)</span></div>
+    <div class="gstn-row"><span class="gstn-key">Status</span><span>${res.status}</span></div>
+    <div class="gstn-row"><span class="gstn-key">Returns Filed</span><span style="color:${res.alert?'var(--red)':'var(--grn)'}">${res.returns_filed}</span></div>
+    <div style="margin-top:.5rem;padding:.4rem .6rem;border-radius:4px;background:${res.alert?'var(--red-d)':'var(--grn-d)'};font-size:.75rem;color:${res.alert?'var(--red)':'var(--grn)'}">
+      ${res.message}</div>
+  </div>`;
+}
+
+function goBacktrack(vid) {
+  document.getElementById('btVoucherSelect').value = vid;
+  goto('backtrack');
+  loadBacktrack();
+}
+
+// ════════════════════════════════════════════
+// BACKTRACK
+// ════════════════════════════════════════════
+async function loadBacktrackOptions() {
+  if (!state.company) return;
+  const data = await api(`/api/vouchers/${state.company.id}?per_page=100`);
+  const sel  = document.getElementById('btVoucherSelect');
+  sel.innerHTML = '<option value="">— Choose an entry to investigate —</option>' +
+    data.rows.map(r => `<option value="${r.id}" ${r.risk_level==='High'?'style="color:var(--red)"':''}>
+      ${r.id} · ${r.party_name} · ${fmt(r.total_amount)} · ${r.risk_level} Risk
+    </option>`).join('');
+}
+
+async function loadBacktrack() {
+  const vid = document.getElementById('btVoucherSelect').value;
+  const el  = document.getElementById('backtrackResult');
+  if (!vid) { el.innerHTML = ''; return; }
+
+  el.innerHTML = '<div class="loading-row"><span class="spinner"></span> Analysing…</div>';
+  const data = await api('/api/backtrack/' + vid);
+  const v    = data.voucher;
+  const risk = v.risk_level;
+  const cls  = risk==='High'?'danger':risk==='Medium'?'warn':'ok';
+
+  // Layers
+  const layerColors = {L1:'var(--blu)',L2:'var(--red)',L3:'var(--ora)',L4:'var(--grn)',L5:'var(--gold)'};
+  const layersHtml = data.layers.map(l => `
+    <div class="bt-card">
+      <div class="bt-header">
+        <span class="bt-layer-id" style="color:${layerColors[l.layer]||'#fff'}">${l.layer}</span>
+        <span class="bt-layer-name">${l.name}</span>
+        <span class="bt-latency">${l.latency}</span>
+      </div>
+      <div class="bt-decision">${l.decision}</div>
+      <div class="bt-evidence">${l.evidence}</div>
+    </div>`).join('');
+
+  // SHAP
+  const shapEntries = Object.entries(data.shap).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const maxShap = Math.max(...shapEntries.map(([,v])=>v), 0.01);
+  const shapHtml = shapEntries.map(([k,v]) => {
+    const pct = Math.round(v/maxShap*100);
+    const col = v > 0.3 ? 'var(--red)' : v > 0.1 ? 'var(--ora)' : 'var(--blu)';
+    return `<div class="shap-row">
+      <div class="shap-label">${k}</div>
+      <div class="shap-bar-wrap"><div class="shap-bar" style="width:${pct}%;background:${col}"></div></div>
+      <div class="shap-val" style="color:${col}">+${v.toFixed(3)}</div>
+    </div>`;
+  }).join('');
+
+  // Ensemble
+  const ensEntries = Object.entries(data.ensemble);
+  const totalEns   = ensEntries.reduce((s,[,v])=>s+v,0);
+
+  el.innerHTML = `
+    <div class="card ${cls}" style="margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <span style="font-family:'DM Mono',monospace;color:var(--gold);font-size:.85rem">${v.id}</span>
+          &nbsp;${riskPill(risk)}
+        </div>
+        <div style="font-size:.78rem;color:var(--mid)">${v.party_name} · ${fmt(v.total_amount)}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <div class="shdr">How each check contributed</div>
+        ${shapHtml || '<div class="note note-ok">✓ No significant risk factors found</div>'}
+        <div class="shdr" style="margin-top:1rem">Overall score breakdown</div>
+        ${ensEntries.map(([k,v2]) => `<div class="shap-row">
+          <div class="shap-label">${k}</div>
+          <div class="shap-bar-wrap"><div class="shap-bar" style="width:${Math.min(100,Math.round(v2/100*100))}%;background:var(--pur)"></div></div>
+          <div class="shap-val">${v2.toFixed(1)}</div>
+        </div>`).join('')}
+        <div style="text-align:right;font-size:.8rem;margin-top:.3rem">
+          Final Score: <b style="color:${totalEns>=50?'var(--red)':totalEns>=20?'var(--ora)':'var(--grn)'}">${Math.min(100,Math.round(totalEns))}/100</b>
+        </div>
+      </div>
+
+      <div>
+        <div class="shdr">Step-by-step check results</div>
+        ${layersHtml}
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// GSTR
+// ════════════════════════════════════════════
+async function loadGSTR() {
+  if (!state.company) return;
+  const data = await api('/api/gstr/' + state.company.id);
+
+  const statsEl = document.getElementById('gstrStats');
+  statsEl.innerHTML = `
+    <div class="stat-box"><div class="stat-lbl">Total Entries</div><div class="stat-val">${data.total}</div></div>
+    <div class="stat-box"><div class="stat-lbl">Matched</div><div class="stat-val" style="color:var(--grn)">${data.matched}</div></div>
+    <div class="stat-box"><div class="stat-lbl">Not in GSTR-2B</div><div class="stat-val" style="color:var(--red)">${data.mismatches}</div></div>
+    <div class="stat-box"><div class="stat-lbl">ITC at Risk</div><div class="stat-val" style="color:var(--red)">${fmt(data.itc_at_risk)}</div></div>`;
+
+  const el = document.getElementById('gstrTable');
+  if (!data.mismatch_rows.length) {
+    el.innerHTML = '<div class="note note-ok" style="margin:.5rem">✅ All entries matched in GSTR-2B. Safe to claim ITC.</div>';
+    return;
+  }
+  el.innerHTML = `<table>
+    <thead><tr><th>Entry ID</th><th>Date</th><th>Party</th><th>Invoice</th><th>Base</th><th>Tax</th><th>Risk</th><th>Action</th></tr></thead>
+    <tbody>${data.mismatch_rows.map(r=>`<tr>
+      <td><span style="font-family:'DM Mono',monospace;color:var(--gold)">${r.id}</span></td>
+      <td>${r.date}</td>
+      <td>${r.party_name||'—'}</td>
+      <td>${r.invoice_number||'—'}</td>
+      <td style="font-family:'DM Mono',monospace">${fmt(r.base_amount)}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--red)">${fmt(r.tax_amount)}</td>
+      <td>${riskPill(r.risk_level)}</td>
+      <td><span style="font-size:.72rem;color:var(--red);font-weight:600">🔴 Do NOT claim ITC</span></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ════════════════════════════════════════════
+// HSN BROWSE
+// ════════════════════════════════════════════
+async function loadBrowse() {
+  const search  = document.getElementById('browseSearch')?.value || '';
+  const gst     = document.getElementById('browseGst')?.value || '';
+  const perPage = parseInt(document.getElementById('browsePp')?.value || 50);
+  const params  = new URLSearchParams({page: state.browsePage, per_page: perPage});
+  if (search) params.append('search', search);
+  if (gst)    params.append('gst_rate', gst);
+
+  const data = await api('/api/hsn/browse?' + params);
+  document.getElementById('browseStats').textContent =
+    `Showing ${data.rows.length} of ${data.total} products`;
+
+  const el = document.getElementById('browseTable');
+  if (!data.rows.length) {
+    el.innerHTML = '<div style="padding:1rem;color:var(--mid);text-align:center">No products found.</div>';
+    document.getElementById('browsePagination').innerHTML = '';
+    return;
+  }
+
+  el.innerHTML = `<table>
+    <thead><tr><th>HSN Code</th><th>Product Name</th><th>GST Rate</th><th>Section</th><th>Chapter</th><th>Action</th></tr></thead>
+    <tbody>${data.rows.map(r=>`<tr>
+      <td><span class="hsn-code">${r.hsn_code}</span></td>
+      <td>${r.item_name}</td>
+      <td>${gstBadge(r.gst_rate)}</td>
+      <td style="color:var(--dim)">${r.section||'—'}</td>
+      <td style="color:var(--dim)">${r.chapter||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteHsn(${r.id},'${r.item_name}')">Remove</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+
+  const totalPages = Math.ceil(data.total / perPage);
+  document.getElementById('browsePagination').innerHTML = `
+    <button class="page-btn" onclick="state.browsePage--;loadBrowse()" ${state.browsePage===0?'disabled':''}>← Prev</button>
+    <span class="page-info">Page ${state.browsePage+1} of ${totalPages}</span>
+    <button class="page-btn" onclick="state.browsePage++;loadBrowse()" ${state.browsePage>=totalPages-1?'disabled':''}>Next →</button>`;
+}
+
+async function addHsnItem() {
+  const body = {
+    hsn_code:   document.getElementById('addHsnCode').value.trim(),
+    item_name:  document.getElementById('addHsnName').value.trim(),
+    gst_rate:   parseFloat(document.getElementById('addHsnGst').value),
+    section:    document.getElementById('addHsnSection').value.trim(),
+    chapter:    document.getElementById('addHsnChapter').value.trim(),
+  };
+  if (!body.hsn_code || !body.item_name) return showMsg('addHsnMsg','HSN Code and Product Name required','err');
+  try {
+    await api('/api/hsn', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    showMsg('addHsnMsg', `✅ "${body.item_name}" added to database`, 'ok');
+    loadBrowse();
+  } catch(e) {
+    showMsg('addHsnMsg','❌ '+e.message,'err');
+  }
+}
+
+async function deleteHsn(id, name) {
+  if (!confirm(`Remove "${name}" from HSN database?`)) return;
+  await api('/api/hsn/' + id, {method:'DELETE'});
+  loadBrowse();
+}
+
+// ════════════════════════════════════════════
+// AUDIT LOG
+// ════════════════════════════════════════════
+async function loadAudit() {
+  const data = await api('/api/audit?limit=60');
+  const el   = document.getElementById('auditEntries');
+  const ACTION_COLORS = {
+    DEMO_SEED:'var(--mid)', COMPANY_CREATE:'var(--grn)', COMPANY_DELETE:'var(--red)',
+    LEDGER_CREATE:'var(--blu)', VOUCHER_SAVE:'var(--blu)', HSN_ADD:'var(--gold)',
+    HSN_DELETE:'var(--ora)', GSTN_VERIFY:'var(--teal)',
+  };
+  el.innerHTML = data.entries.map(e => {
+    const col = ACTION_COLORS[e.action] || 'var(--mid)';
+    const after = e.after_val ? JSON.parse(e.after_val) : {};
+    const afterStr = Object.entries(after).slice(0,3).map(([k,v])=>`${k}=${v}`).join(' · ');
+    return `<div style="font-family:'DM Mono',monospace;font-size:.68rem;background:#030508;border:1px solid rgba(255,255,255,.04);border-left:3px solid ${col};border-radius:4px;padding:.4rem .75rem;margin-bottom:.2rem;color:var(--mid)">
+      <span style="color:var(--gold)">${e.ts}</span>
+      &nbsp;<span style="color:${col};font-weight:600">${e.action}</span>
+      &nbsp;tbl=${e.tbl} · ref=${e.record_id.substring(0,12)}
+      ${afterStr ? `&nbsp;· ${afterStr}` : ''}
+      <span style="color:#1E2530;margin-left:.5rem">#${e.entry_hash.substring(0,12)}…</span>
+    </div>`;
+  }).join('');
+  if (!data.entries.length) {
+    el.innerHTML = '<div class="note note-info">No audit entries yet.</div>';
+  }
+}
+
+async function verifyChain() {
+  const res = await api('/api/audit/verify');
+  const el  = document.getElementById('auditChainStatus');
+  el.className = 'note ' + (res.ok ? 'note-ok' : 'note-err');
+  el.innerHTML = `🔗 ${res.message}`;
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  // Set today's date in voucher form
+  document.getElementById('vDate').value = new Date().toISOString().split('T')[0];
+  await loadCompanySelector();
+  goto('dashboard');
+});
+</script>
+</body>
+</html>
