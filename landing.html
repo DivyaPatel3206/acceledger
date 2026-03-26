@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AccuLedger — AI-Powered Accounting & GST Scrutiny Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D2B6E;--navy-mid:#1A3E8A;--navy-dark:#091D4E;
+  --green:#3CB54A;--green-dark:#2A8C37;--green-light:#E8F8EA;
+  --amber:#F59E0B;--red:#DC2626;--orange:#EA580C;
+  --text:#1A1A2E;--text2:#4A5568;--text3:#718096;
+  --border:#E2E8F0;--bg:#F7F9FC;--white:#fff;
+  --shadow:0 4px 24px rgba(13,43,110,.07);
+  --shadow-lg:0 16px 48px rgba(13,43,110,.13);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito Sans',sans-serif;color:var(--text);background:var(--white);font-size:15px;line-height:1.65;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Poppins',sans-serif}
+a{text-decoration:none;color:inherit}
+
+/* ─── TOPBAR ─── */
+.topbar{background:var(--navy-dark);color:#fff;font-size:12px;padding:8px 0;text-align:center}
+.topbar strong{color:#FFD700}
+
+/* ─── NAV ─── */
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.05)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 28px;display:flex;align-items:center;height:70px;gap:36px}
+.nav-logo{font-family:'Poppins',sans-serif;font-size:1.35rem;font-weight:800;color:var(--navy);letter-spacing:-.5px}
+.nav-logo span{color:var(--green)}
+.nav-links{display:flex;gap:2px;flex:1}
+.nav-links a{padding:8px 13px;font-size:13.5px;font-weight:600;color:var(--text2);border-radius:6px;transition:all .18s;white-space:nowrap}
+.nav-links a:hover,.nav-links a.active{color:var(--navy);background:#EEF2FF}
+.nav-cta{display:flex;gap:10px;align-items:center;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:8px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .18s;white-space:nowrap;line-height:1}
+.btn-outline{background:transparent;color:var(--navy);border:2px solid var(--navy)}
+.btn-outline:hover{background:var(--navy);color:#fff}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:0 3px 14px rgba(60,181,74,.28)}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(60,181,74,.38)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy-mid)}
+.btn-lg{padding:13px 30px;font-size:15px;border-radius:10px}
+.btn-ghost{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+
+/* ─── LAUNCH BAR ─── */
+.app-launch-bar{
+  position:sticky;top:70px;z-index:99;
+  background:linear-gradient(90deg,#091D4E 0%,#0D2B6E 60%,#1A3E8A 100%);
+  padding:11px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+  box-shadow:0 3px 14px rgba(13,43,110,.35);
+  border-bottom:1px solid rgba(60,181,74,.3);
+}
+.app-launch-bar .lmsg{color:rgba(255,255,255,.82);font-size:13.5px;margin:0}
+.app-launch-bar .lmsg strong{color:#FFD700}
+.btn-launch{
+  background:linear-gradient(135deg,#3CB54A,#2A8C37)!important;
+  color:#fff!important;font-size:14px!important;padding:11px 28px!important;
+  border-radius:9px!important;font-weight:800!important;
+  box-shadow:0 3px 18px rgba(60,181,74,.45)!important;
+  animation:btnpulse 2.5s ease-in-out infinite;
+  border:none!important;white-space:nowrap;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn-launch:hover{transform:translateY(-2px)!important;box-shadow:0 6px 24px rgba(60,181,74,.65)!important}
+@keyframes btnpulse{0%,100%{box-shadow:0 3px 18px rgba(60,181,74,.45)}50%{box-shadow:0 3px 26px rgba(60,181,74,.75)}}
+
+/* ─── HERO ─── */
+.hero{background:linear-gradient(150deg,#EBF0FF 0%,#F0FFF4 45%,#EDF5FF 100%);padding:76px 0 56px;overflow:hidden;position:relative}
+.hero::before{content:'';position:absolute;top:-120px;right:-80px;width:480px;height:480px;background:radial-gradient(circle,rgba(60,181,74,.09),transparent 70%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(60,181,74,.35);border-radius:50px;padding:5px 14px;font-size:11.5px;font-weight:800;color:var(--green-dark);letter-spacing:.05em;text-transform:uppercase;margin-bottom:18px;box-shadow:0 2px 10px rgba(60,181,74,.1)}
+.hero-eyebrow span{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:42px;font-weight:800;line-height:1.13;color:var(--navy);margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero-sub{font-size:16px;color:var(--text2);line-height:1.8;margin-bottom:26px;max-width:500px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px}
+.hero-stats{display:flex;gap:28px;padding-top:28px;border-top:1px solid rgba(13,43,110,.1)}
+.hs-num{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:var(--navy);line-height:1}
+.hs-num em{color:var(--green);font-style:normal}
+.hs-lbl{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* ─── HERO CARD ─── */
+.hero-card{background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);overflow:hidden;border:1px solid var(--border)}
+.hc-bar{background:var(--navy);padding:13px 18px;display:flex;align-items:center;gap:9px}
+.hc-bar span{font-size:13px;font-weight:700;color:#fff;flex:1}
+.dots{display:flex;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%}
+.d-r{background:#FF5F57}.d-y{background:#FFBD2E}.d-g{background:#28CA41}
+.hc-body{padding:18px}
+.vrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--border);margin-bottom:7px;transition:all .25s}
+.vrow.flag{background:#FFF5F5;border-color:#FECACA}
+.vrow.med{background:#FFFBF0;border-color:#FEF3C7}
+.vrow.ok{background:#F0FFF4;border-color:#C6F6D5}
+.vn{font-size:10.5px;font-weight:700;color:var(--text2);font-family:'Courier New',monospace;flex-shrink:0;width:120px}
+.vp{font-size:12.5px;font-weight:600;color:var(--text);flex:1}
+.va{font-size:11.5px;font-weight:800;color:var(--navy);font-family:'Courier New',monospace;flex-shrink:0}
+.rb{padding:2px 9px;border-radius:20px;font-size:9.5px;font-weight:800;letter-spacing:.07em;flex-shrink:0;display:flex;align-items:center;gap:3px}
+.rb::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.rb-h{background:#FECACA;color:#991B1C}.rb-h::before{background:#EF4444}
+.rb-m{background:#FEF3C7;color:#92400E}.rb-m::before{background:#F59E0B}
+.rb-l{background:#D1FAE5;color:#065F46}.rb-l::before{background:#10B981}
+.shap{margin-top:12px;padding:12px;background:#F8FAFC;border-radius:9px}
+.shap-ttl{font-size:10px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
+.sr{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.sl{font-size:9.5px;color:var(--text2);width:120px;text-align:right;flex-shrink:0}
+.st{flex:1;height:5px;background:#E2E8F0;border-radius:3px;overflow:hidden}
+.sf{height:100%;border-radius:3px}
+.sf-r{background:linear-gradient(90deg,#EF4444,#B91C1C)}.sf-o{background:linear-gradient(90deg,#F59E0B,#D97706)}.sf-b{background:linear-gradient(90deg,#3B82F6,#2563EB)}
+.sv{font-size:9.5px;font-weight:700;width:34px;flex-shrink:0}
+.badge-float{position:absolute;background:#fff;border-radius:11px;box-shadow:var(--shadow-lg);padding:9px 13px;border:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;white-space:nowrap;z-index:2}
+.bf-top{top:-14px;left:-20px;color:var(--red)}
+.bf-bot{bottom:-14px;right:-20px;color:var(--green-dark)}
+
+/* ─── TRUST STRIP ─── */
+.trust{background:var(--navy);padding:26px 0}
+.trust-inner{max-width:1200px;margin:0 auto;padding:0 28px;display:flex;justify-content:space-around;align-items:center;gap:24px;flex-wrap:wrap}
+.ti{text-align:center;color:#fff}
+.ti .n{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:#FFD700;line-height:1}
+.ti .l{font-size:11px;color:rgba(255,255,255,.65);margin-top:3px}
+
+/* ─── CONTEST BADGE ─── */
+.contest-strip{background:linear-gradient(135deg,#1A1A2E,#0D2B6E);padding:22px 28px;text-align:center}
+.contest-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.contest-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:50px;border:1px solid rgba(255,215,0,.4);background:rgba(255,215,0,.08);color:#FFD700;font-size:12px;font-weight:700;letter-spacing:.04em}
+.team-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:50px;border:1px solid rgba(60,181,74,.4);background:rgba(60,181,74,.08);color:#7FE88F;font-size:12px;font-weight:700}
+.team-members{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.member{font-size:11.5px;color:rgba(255,255,255,.75);padding:4px 12px;background:rgba(255,255,255,.07);border-radius:20px;border:1px solid rgba(255,255,255,.1)}
+.member strong{color:#fff}
+
+/* ─── SECTION ─── */
+.section{padding:76px 0}
+.section-alt{background:var(--bg)}
+.container{max-width:1200px;margin:0 auto;padding:0 28px}
+.sec-tag{display:inline-block;background:var(--green-light);color:var(--green-dark);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 13px;border-radius:50px;margin-bottom:10px}
+.sec-tag.blue{background:#EEF2FF;color:var(--navy)}
+.sec-tag.orange{background:#FFF8EF;color:#9A3412}
+.sec-title{font-size:34px;font-weight:800;color:var(--navy);line-height:1.2;margin-bottom:12px}
+.sec-title em{color:var(--green);font-style:normal}
+.sec-sub{font-size:15px;color:var(--text2);max-width:600px;line-height:1.8}
+.sec-header{text-align:center;margin-bottom:52px}
+.sec-header .sec-sub{margin:0 auto}
+
+/* ─── PROBLEM ─── */
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.prob-points{display:flex;flex-direction:column;gap:13px;margin-top:22px}
+.pp{display:flex;gap:13px;align-items:flex-start;padding:15px 16px;border-radius:10px;border:1px solid transparent}
+.pp.danger{background:#FFF5F5;border-color:#FECACA}
+.pp.warn{background:#FFFBF0;border-color:#FEF3C7}
+.pp.info{background:#EFF6FF;border-color:#BFDBFE}
+.pp.success{background:var(--green-light);border-color:#C6F6D5}
+.pp-icon{font-size:22px;flex-shrink:0;line-height:1;margin-top:2px}
+.pp-body strong{font-size:13.5px;display:block;margin-bottom:3px}
+.pp.danger .pp-body strong{color:#991B1B}
+.pp.warn .pp-body strong{color:#92400E}
+.pp.info .pp-body strong{color:var(--navy-mid)}
+.pp.success .pp-body strong{color:var(--green-dark)}
+.pp-body p{font-size:12.5px;color:var(--text2);line-height:1.6}
+
+/* ─── ARCH BOX ─── */
+.arch-box{background:var(--navy-dark);border-radius:16px;padding:32px;color:#fff;position:relative;overflow:hidden}
+.arch-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(60,181,74,.15),transparent 70%)}
+.arch-center{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 0 30px rgba(60,181,74,.4)}
+.arch-spokes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.spoke{padding:10px 12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:9px;text-align:center}
+.spoke-icon{font-size:18px;margin-bottom:5px}
+.spoke-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.9)}
+.spoke-desc{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* ─── FLOW ─── */
+.flow-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;position:relative}
+.flow-step{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;padding:0 6px}
+.flow-step::after{content:'→';position:absolute;right:-10px;top:24px;font-size:18px;color:var(--green);font-weight:700;z-index:2}
+.flow-step:last-child::after{display:none}
+.flow-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px;border:2px solid var(--border);background:#fff;box-shadow:var(--shadow)}
+.flow-label{font-size:11.5px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.flow-sub{font-size:10px;color:var(--text3);line-height:1.5}
+
+/* ─── TECH GRID ─── */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tech-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px 18px;text-align:center;box-shadow:var(--shadow);transition:all .25s}
+.tech-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--navy)}
+.tech-icon{font-size:36px;margin-bottom:12px}
+.tech-name{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:5px}
+.tech-role{font-size:12px;color:var(--text2);line-height:1.6}
+.tech-tag{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:#EEF2FF;color:var(--navy)}
+.tech-grid-full{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+
+/* ─── FEATURES ─── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.fc{background:#fff;border:1px solid var(--border);border-radius:15px;padding:26px;box-shadow:var(--shadow);transition:all .25s}
+.fc:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--navy)}
+.fc-icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:15px}
+.fc-icon.blue{background:#EEF2FF}.fc-icon.green{background:var(--green-light)}
+.fc-icon.orange{background:#FFF8EF}.fc-icon.red{background:#FFF5F5}
+.fc-icon.purple{background:#F5F0FF}.fc-icon.teal{background:#E6FFFA}
+.fc-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:7px}
+.fc-desc{font-size:13px;color:var(--text2);line-height:1.7}
+.fc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.fc-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:#F0F4FF;color:var(--navy-mid)}
+.usp-highlight{background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:14px;padding:24px;grid-column:span 3;display:flex;align-items:center;gap:28px;color:#fff}
+.usp-icon{font-size:44px;flex-shrink:0}
+.usp-text h3{font-size:20px;font-weight:700;margin-bottom:6px;color:#FFD700}
+.usp-text p{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.7}
+
+/* ─── LINKS ─── */
+.links-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.lc{background:#fff;border:2px solid var(--border);border-radius:16px;padding:28px;text-align:center;box-shadow:var(--shadow);transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:12px}
+.lc:hover{border-color:var(--navy);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.lc-icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.lc-icon.gh{background:#1A1A2E}.lc-icon.live{background:var(--green-light)}.lc-icon.vid{background:#FFF0F0}
+.lc-title{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--navy)}
+.lc-sub{font-size:12.5px;color:var(--text2);line-height:1.6}
+.lc-url{font-size:11px;color:var(--navy-mid);font-family:'Courier New',monospace;word-break:break-all;background:#F0F4FF;padding:6px 10px;border-radius:6px;width:100%}
+.lc a{width:100%}
+
+/* ─── TEAM ─── */
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;box-shadow:var(--shadow);transition:all .25s}
+.tc:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.tc-avatar{width:64px;height:64px;border-radius:50%;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.tc-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.tc-role{font-size:11.5px;color:var(--text3)}
+.tc-role.leader{color:var(--green-dark);font-weight:800;background:var(--green-light);padding:2px 10px;border-radius:20px;display:inline-block}
+
+/* ─── CTA ─── */
+.cta-section{background:linear-gradient(135deg,var(--navy),var(--navy-mid));padding:72px 0;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:-80px;right:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(60,181,74,.12),transparent 70%)}
+.cta-inner{position:relative;z-index:1}
+.cta-tag{display:inline-block;background:rgba(60,181,74,.18);color:#7FE88F;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 13px;border-radius:50px;margin-bottom:14px;border:1px solid rgba(60,181,74,.3)}
+.cta-section h2{font-size:38px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.2}
+.cta-section h2 em{color:#FFD700;font-style:normal}
+.cta-section p{font-size:16px;color:rgba(255,255,255,.75);max-width:540px;margin:0 auto 32px;line-height:1.8}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cert-tags{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.cert-t{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:50px;border:1px solid rgba(255,255,255,.15);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)}
+
+/* ─── FOOTER ─── */
+footer{background:#0A1628;color:#fff;padding:52px 0 0}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+.footer-brand{font-family:'Poppins',sans-serif;font-size:1.2rem;font-weight:800;color:#FFD700;margin-bottom:12px}
+.footer-desc{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.75;max-width:270px;margin-bottom:18px}
+.footer-tech-tags{display:flex;gap:5px;flex-wrap:wrap}
+.ftt{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5)}
+.footer-h{font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px}
+.footer-links{list-style:none}
+.footer-links li{margin-bottom:9px}
+.footer-links a{font-size:12.5px;color:rgba(255,255,255,.65);transition:color .18s}
+.footer-links a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.09);padding:18px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:11.5px;color:rgba(255,255,255,.35)}
+.fbl{display:flex;gap:18px}
+.fbl a{font-size:11.5px;color:rgba(255,255,255,.45)}
+.fbl a:hover{color:#fff}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.anim{opacity:0;animation:fadeUp .55s ease forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.19s}.d4{animation-delay:.26s}
+
+/* ─── MISC ─── */
+.divider{height:1px;background:var(--border)}
+.highlight-box{background:linear-gradient(135deg,#EBF4FF,#F0FFF4);border:1px solid rgba(13,43,110,.1);border-radius:15px;padding:26px 30px;margin-top:28px;display:flex;align-items:center;gap:18px}
+.hb-num{font-family:'Poppins',sans-serif;font-size:40px;font-weight:800;color:var(--navy);line-height:1;flex-shrink:0}
+.hb-text p{font-size:15px;font-weight:600;color:var(--navy);line-height:1.5}
+.hb-text small{font-size:12px;color:var(--text3);display:block;margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  🏆 <strong>India Innovates 2026</strong> — Team Reapers &nbsp;|&nbsp; AccuLedger: AI-Powered Accounting &amp; GST Scrutiny &nbsp;|&nbsp; <strong>Live App Running ↓</strong>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">Accu<span>Ledger</span></div>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#tech">Tech Stack</a>
+      <a href="#features">Features</a>
+      <a href="#team">Team</a>
+      <a href="#links">Links</a>
+    </div>
+    <div class="nav-cta">
+      <a href="https://github.com/DivyaPatel3206/scrutiny_ai" target="_blank" class="btn btn-outline">GitHub</a>
+      <a href="/app" class="btn btn-green">🚀 Open App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- STICKY LAUNCH BAR -->
+<div class="app-launch-bar">
+  <p class="lmsg">
+    ✅ <strong>AccuLedger is running</strong> — XGBoost + Isolation Forest fraud detection · HSN/GST lookup · Tax calculator · Full accounting platform
+  </p>
+  <a href="/app" class="btn-launch">🚀 Open AccuLedger App →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="anim">
+      <div class="hero-eyebrow"><span></span> India Innovates 2026 · Team Reapers</div>
+      <h1>Accounting That<br/><em>Thinks For You</em></h1>
+      <p class="hero-sub">AccuLedger combines accounting, AI scrutiny, and invoice scanning in one practical platform — automating voucher creation, flagging compliance risks, and detecting suspicious patterns without changing familiar workflows.</p>
+      <div class="hero-btns">
+        <a href="/app" class="btn btn-green btn-lg">
+          🚀 Open Live App
+        </a>
+        <a href="https://drive.google.com/file/d/1xcsM0-UYGUfq0-M1VrnNUsJEJ4HP_e5_/view?usp=sharing" target="_blank" class="btn btn-navy btn-lg">
+          ▶ Watch Demo Video
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hs-num">100<em>%</em></div>
+          <div class="hs-lbl">Voucher coverage via AI</div>
+        </div>
+        <div>
+          <div class="hs-num">5<em>-Layer</em></div>
+          <div class="hs-lbl">AI scrutiny pipeline</div>
+        </div>
+        <div>
+          <div class="hs-num">Real<em>-time</em></div>
+          <div class="hs-lbl">Compliance alerts</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:relative" class="anim d2">
+      <div class="badge-float bf-top">⭐ HIGH RISK — Score 87 detected</div>
+      <div class="hero-card">
+        <div class="hc-bar">
+          <span>AccuLedger AI — Live Scrutiny</span>
+          <div class="dots"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div></div>
+        </div>
+        <div class="hc-body">
+          <div class="vrow flag">
+            <div class="vn">V-2026-001</div>
+            <div class="vp">Shree Infra Solutions</div>
+            <div class="va">₹45,00,000</div>
+            <div class="rb rb-h">HIGH · 87</div>
+          </div>
+          <div class="vrow flag">
+            <div class="vn">V-2026-008</div>
+            <div class="vp">Apex Trade Co.</div>
+            <div class="va">₹12,50,000</div>
+            <div class="rb rb-h">HIGH · 74</div>
+          </div>
+          <div class="vrow med">
+            <div class="vn">V-2026-012</div>
+            <div class="vp">Zenith Supplies</div>
+            <div class="va">₹3,75,000</div>
+            <div class="rb rb-m">MED · 42</div>
+          </div>
+          <div class="vrow ok">
+            <div class="vn">V-2026-019</div>
+            <div class="vp">Sharma Electronics</div>
+            <div class="va">₹1,20,000</div>
+            <div class="rb rb-l">LOW · 8</div>
+          </div>
+          <div class="shap">
+            <div class="shap-ttl">🔍 AI Risk Factors — V-2026-001</div>
+            <div class="sr"><div class="sl">gstin_age_days=4</div><div class="st"><div class="sf sf-r" style="width:80%"></div></div><div class="sv" style="color:#EF4444">+0.43</div></div>
+            <div class="sr"><div class="sl">is_round_number</div><div class="st"><div class="sf sf-o" style="width:52%"></div></div><div class="sv" style="color:#D97706">+0.28</div></div>
+            <div class="sr"><div class="sl">amount_anomaly</div><div class="st"><div class="sf sf-b" style="width:36%"></div></div><div class="sv" style="color:#2563EB">+0.19</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="badge-float bf-bot">✓ Tally-style · OCR · Auto-GST</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust">
+  <div class="trust-inner">
+    <div class="ti"><div class="n">100%</div><div class="l">Voucher AI coverage</div></div>
+    <div class="ti"><div class="n">XGBoost</div><div class="l">+ Isolation Forest</div></div>
+    <div class="ti"><div class="n">HSN/GST</div><div class="l">Auto-detection & mapping</div></div>
+    <div class="ti"><div class="n">0</div><div class="l">Workflow changes needed</div></div>
+    <div class="ti"><div class="n">Live</div><div class="l">App running at /app</div></div>
+  </div>
+</div>
+
+<!-- CONTEST STRIP -->
+<div class="contest-strip">
+  <div class="contest-inner">
+    <div class="contest-badge">🏆 India Innovates 2026</div>
+    <div class="team-badge">⚡ Team Reapers</div>
+    <div class="team-members">
+      <span class="member"><strong>Aditya Tyagi</strong> · Leader</span>
+      <span class="member"><strong>Divya Patel</strong></span>
+      <span class="member"><strong>Anjali Pedwal</strong></span>
+      <span class="member"><strong>Dhruvita Boricha</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="section" id="problem">
+  <div class="container">
+    <div class="prob-grid">
+      <div class="anim">
+        <div class="sec-tag">The Problem</div>
+        <h2 class="sec-title">CAs Buried Under <em>Manual Voucher Verification</em></h2>
+        <p class="sec-sub">Financial integrity officers are stretched thin. The human gap in 100% transaction coverage is not a resource issue — it's a structural one.</p>
+        <div class="prob-points">
+          <div class="pp danger">
+            <div class="pp-icon">⚠️</div>
+            <div class="pp-body">
+              <strong>The Professional Challenge</strong>
+              <p>CAs are tasked with ensuring financial integrity, yet are often buried under a mountain of manual voucher verification — with no time to inspect every entry.</p>
+            </div>
+          </div>
+          <div class="pp warn">
+            <div class="pp-icon">🔍</div>
+            <div class="pp-body">
+              <strong>The Human Gap</strong>
+              <p>Statistical sampling exists because humans cannot physically review 100% of transactions without fatigue-led error. This leaves a systematic blind spot.</p>
+            </div>
+          </div>
+          <div class="pp info">
+            <div class="pp-icon">📊</div>
+            <div class="pp-body">
+              <strong>The Scale Issue</strong>
+              <p>CA firms manage 10–200 client companies. A single CA reviewing hundreds of vouchers daily will inevitably miss patterns that span clients or repeat across time.</p>
+            </div>
+          </div>
+          <div class="pp danger">
+            <div class="pp-icon">💸</div>
+            <div class="pp-body">
+              <strong>The Risk</strong>
+              <p>Fraud and clerical errors hide in the "unseen" 90% of data — only surfacing after ITC disallowance or a tax audit.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anim d2">
+        <div class="arch-box">
+          <div style="text-align:center;margin-bottom:18px">
+            <div class="arch-center">🧠</div>
+            <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:4px">AccuLedger AI Engine</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.55)">SQLite Database · Real-time Analysis</div>
+          </div>
+          <div class="arch-spokes">
+            <div class="spoke"><div class="spoke-icon">🏢</div><div class="spoke-name">Company Setup</div><div class="spoke-desc">Onboarding</div></div>
+            <div class="spoke"><div class="spoke-icon">📒</div><div class="spoke-name">Ledger Masters</div><div class="spoke-desc">Chart of Accounts</div></div>
+            <div class="spoke"><div class="spoke-icon">📄</div><div class="spoke-name">Voucher Entry</div><div class="spoke-desc">Manual entry</div></div>
+            <div class="spoke"><div class="spoke-icon">📦</div><div class="spoke-name">HSN/GST Map</div><div class="spoke-desc">Auto-detect rates</div></div>
+            <div class="spoke"><div class="spoke-icon">🔍</div><div class="spoke-name">GSTR Check</div><div class="spoke-desc">ITC Matching</div></div>
+            <div class="spoke" style="background:rgba(60,181,74,.15);border-color:rgba(60,181,74,.3)"><div class="spoke-icon">🤖</div><div class="spoke-name" style="color:#7FE88F">AI Scrutiny</div><div class="spoke-desc" style="color:rgba(255,255,255,.6)">XGBoost + IsoForest</div></div>
+          </div>
+          <div style="margin-top:16px;padding:14px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:9px;text-align:center">
+            <div style="font-size:12px;font-weight:700;color:#FFD700;margin-bottom:4px">📊 Dashboard & Reports</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.55)">Risk Alerts · Backtracking · Compliance · Audit Log</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="section section-alt" id="solution">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-tag">The Solution</div>
+      <h2 class="sec-title">AccuLedger — <em>Intelligence Embedded in Daily Accounting</em></h2>
+      <p class="sec-sub">AccuLedger combines accounting, AI scrutiny, and HSN/GST mapping in one practical platform. It flags compliance risks, detects suspicious patterns, and improves financial accuracy — without changing familiar workflows.</p>
+    </div>
+    <div class="flow-grid anim">
+      <div class="flow-step">
+        <div class="flow-icon">👤</div>
+        <div class="flow-label">User Input</div>
+        <div class="flow-sub">Manual entry or invoice</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">📋</div>
+        <div class="flow-label">Voucher Creation</div>
+        <div class="flow-sub">Auto-create accounting transactions</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">🗄️</div>
+        <div class="flow-label">Database</div>
+        <div class="flow-sub">SQLite · Ledgers + Vouchers</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">🤖</div>
+        <div class="flow-label">AI Engine</div>
+        <div class="flow-sub">XGBoost + IsolationForest</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">🔍</div>
+        <div class="flow-label">GSTN Check</div>
+        <div class="flow-sub">Supplier verification</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">📊</div>
+        <div class="flow-label">Dashboard</div>
+        <div class="flow-sub">Alerts · Reports</div>
+      </div>
+    </div>
+    <div class="highlight-box anim d2">
+      <div class="hb-num">🎯</div>
+      <div class="hb-text">
+        <p>Innovation: embedding intelligence directly into daily accounting operations — making audits <em style="color:var(--green);font-style:normal">faster</em>, decisions <em style="color:var(--navy);font-style:normal">smarter</em>, and business finance management more <em style="color:var(--green-dark);font-style:normal">reliable</em>.</p>
+        <small>No workflow changes. No new learning curve. Just AI-verified books.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section" id="architecture">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start">
+      <div class="anim">
+        <div class="sec-tag blue">System Architecture</div>
+        <h2 class="sec-title">How the <em>Platform Connects</em></h2>
+        <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:20px">AccuLedger connects company setup, ledger masters, voucher entry, HSN/GST mapping, and AI compliance modules through a shared SQLite database. Every saved voucher is automatically run through the fraud detection pipeline.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px">
+            <span style="font-size:18px;flex-shrink:0">📥</span>
+            <div><strong style="font-size:13px;color:var(--navy)">Input Layer</strong><p style="font-size:12px;color:var(--text2)">Manual voucher entry via web interface. HSN code auto-suggest with GST rate lookup.</p></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px">
+            <span style="font-size:18px;flex-shrink:0">⚙️</span>
+            <div><strong style="font-size:13px;color:var(--navy)">Processing Layer</strong><p style="font-size:12px;color:var(--text2)">Tax logic maps HSN codes to GST rates. Vouchers stored in accounting DB. GSTIN verified.</p></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:#F0FFF4;border:1px solid #C6F6D5;border-radius:9px">
+            <span style="font-size:18px;flex-shrink:0">🤖</span>
+            <div><strong style="font-size:13px;color:var(--green-dark)">AI Scrutiny Engine</strong><p style="font-size:12px;color:var(--text2)">XGBoost × 0.5 + IsolationForest × 0.5 ensemble · SHAP feature attribution · Duplicate check · Compliance rules</p></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:9px">
+            <span style="font-size:18px;flex-shrink:0">📊</span>
+            <div><strong style="font-size:13px;color:var(--navy)">Output Layer</strong><p style="font-size:12px;color:var(--text2)">Dashboards, risk flags, "Why Flagged?" backtracking, GSTR-2B reconciliation, Merkle audit chain.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="anim d2">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg)">
+          <div style="background:var(--navy);padding:14px 18px;color:#fff;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700">AI Scrutiny Engine — 5-Layer Pipeline</div>
+          <div style="padding:20px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:8px">
+                <span style="width:32px;height:32px;background:#EEF2FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">L1</span>
+                <div><strong style="font-size:13px;color:var(--navy)">Rules Check</strong><p style="font-size:11px;color:var(--text2)">GSTIN format · missing fields · HSN-GST mismatch · cash limits</p></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FFF5F5;border:1px solid #FECACA;border-radius:8px">
+                <span style="width:32px;height:32px;background:#FEE2E2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">L2</span>
+                <div><strong style="font-size:13px;color:#991B1B">XGBoost Classifier</strong><p style="font-size:11px;color:var(--text2)">12-feature vector · SHAP attribution · fraud probability 0–100</p></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FFF8EF;border:1px solid #FED7AA;border-radius:8px">
+                <span style="width:32px;height:32px;background:#FEF3C7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">L3</span>
+                <div><strong style="font-size:13px;color:#9A3412">Isolation Forest</strong><p style="font-size:11px;color:var(--text2)">Unsupervised anomaly detection · per-company model · n_estimators=200</p></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F0FFF4;border:1px solid #C6F6D5;border-radius:8px">
+                <span style="width:32px;height:32px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">L4</span>
+                <div><strong style="font-size:13px;color:var(--green-dark)">Duplicate Check</strong><p style="font-size:11px;color:var(--text2)">Invoice + party + amount fuzzy matching · flags reformatted duplicates</p></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FFFFF0;border:1px solid #FEF9C3;border-radius:8px">
+                <span style="width:32px;height:32px;background:#FEF3C7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">L5</span>
+                <div><strong style="font-size:13px;color:#92400E">Ensemble Score</strong><p style="font-size:11px;color:var(--text2)">XGBoost × 0.5 + IsoForest × 0.5 → combined 0–100 risk score</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section class="section section-alt" id="tech">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-tag orange">Technology Stack</div>
+      <h2 class="sec-title">Built With <em>Practical, Proven Technology</em></h2>
+      <p class="sec-sub">Every technology chosen for a specific purpose — from responsive UI to AI fraud detection.</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card anim d1">
+        <div class="tech-icon">🌐</div>
+        <div class="tech-name">HTML · CSS · JS</div>
+        <div class="tech-role">Single-file responsive frontend. Tally-style workflow design familiar to CA firms.</div>
+        <span class="tech-tag">Frontend</span>
+      </div>
+      <div class="tech-card anim d2">
+        <div class="tech-icon">⚡</div>
+        <div class="tech-name">FastAPI</div>
+        <div class="tech-role">Powers all backend APIs. Async, high-performance Python web framework.</div>
+        <span class="tech-tag">Backend</span>
+      </div>
+      <div class="tech-card anim d3">
+        <div class="tech-icon">🗄️</div>
+        <div class="tech-name">SQLite</div>
+        <div class="tech-role">Single-file database. Structured accounting data — ledgers, vouchers, companies, audit chain.</div>
+        <span class="tech-tag">Database</span>
+      </div>
+      <div class="tech-card anim d4">
+        <div class="tech-icon">🐍</div>
+        <div class="tech-name">Python</div>
+        <div class="tech-role">XGBoost + scikit-learn IsolationForest + NumPy for AI fraud detection engine.</div>
+        <span class="tech-tag">AI & Logic</span>
+      </div>
+    </div>
+    <div class="tech-grid-full">
+      <div class="tech-card anim d1">
+        <div class="tech-icon">🎯</div>
+        <div class="tech-name">XGBoost</div>
+        <div class="tech-role">Supervised fraud classifier. 12 features, SMOTE augmentation, SHAP attribution per voucher.</div>
+        <span class="tech-tag">Fraud Detection</span>
+      </div>
+      <div class="tech-card anim d2">
+        <div class="tech-icon">🌲</div>
+        <div class="tech-name">Isolation Forest</div>
+        <div class="tech-role">Unsupervised anomaly detection. Per-company model trained on own history. n_estimators=200.</div>
+        <span class="tech-tag">Anomaly Detection</span>
+      </div>
+      <div class="tech-card anim d3">
+        <div class="tech-icon">🔐</div>
+        <div class="tech-name">Merkle Audit Chain</div>
+        <div class="tech-role">SHA-256 hash chain. Every action logged with prev_hash — tamper-evident, verifiable.</div>
+        <span class="tech-tag">Compliance</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-tag">Features & USP</div>
+      <h2 class="sec-title">Key Features That <em>Set AccuLedger Apart</em></h2>
+      <p class="sec-sub">AccuLedger integrates AI-powered scrutiny directly into everyday accounting workflows.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="fc anim d1">
+        <div class="fc-icon orange">📦</div>
+        <div class="fc-title">HSN/GST Auto-Detection</div>
+        <div class="fc-desc">Search 130+ products by name → instant HSN code + GST rate. Fuzzy matching with bigram similarity. Eliminates manual GST lookup errors.</div>
+        <div class="fc-tags"><span class="fc-tag">Auto-mapping</span><span class="fc-tag">GST rates</span><span class="fc-tag">HSN codes</span></div>
+      </div>
+      <div class="fc anim d2">
+        <div class="fc-icon red">🎯</div>
+        <div class="fc-title">AI Risk Scoring</div>
+        <div class="fc-desc">Every voucher scored 0–100. XGBoost × 0.5 + IsolationForest × 0.5 ensemble. Flags round-number bias, new vendors, March rush, large amounts.</div>
+        <div class="fc-tags"><span class="fc-tag">XGBoost</span><span class="fc-tag">IsoForest</span><span class="fc-tag">SHAP</span></div>
+      </div>
+      <div class="fc anim d3">
+        <div class="fc-icon purple">🔄</div>
+        <div class="fc-title">Duplicate Detection</div>
+        <div class="fc-desc">Identifies repeat invoices. Catches same invoice with different party name or amount — preventing double-payment and ITC overclaim.</div>
+        <div class="fc-tags"><span class="fc-tag">Smart matching</span><span class="fc-tag">ITC protection</span></div>
+      </div>
+      <div class="fc anim d1">
+        <div class="fc-icon blue">🔔</div>
+        <div class="fc-title">Real-Time Compliance Alerts</div>
+        <div class="fc-desc">Flag missing details, mismatched GST rates, cash transactions above limits. In real time as vouchers are saved. No post-audit surprises.</div>
+        <div class="fc-tags"><span class="fc-tag">Instant alerts</span><span class="fc-tag">GST compliance</span></div>
+      </div>
+      <div class="fc anim d2">
+        <div class="fc-icon green">🔗</div>
+        <div class="fc-title">"Why Flagged?" Backtracking</div>
+        <div class="fc-desc">Full causal trace for every risk decision. Per-layer evidence: rules fired, SHAP values, anomaly score, duplicate similarity. CA-readable explanation.</div>
+        <div class="fc-tags"><span class="fc-tag">Causal trace</span><span class="fc-tag">SHAP bars</span></div>
+      </div>
+      <div class="fc anim d3">
+        <div class="fc-icon teal">📊</div>
+        <div class="fc-title">GSTR-2B Reconciliation</div>
+        <div class="fc-desc">Check which vouchers are not found in GSTR-2B. ITC at risk highlighted. Export mismatch report. Merkle-chain audit log for every action.</div>
+        <div class="fc-tags"><span class="fc-tag">ITC matching</span><span class="fc-tag">Audit chain</span></div>
+      </div>
+      <div class="usp-highlight anim">
+        <div class="usp-icon">💡</div>
+        <div class="usp-text">
+          <h3>The Core Innovation</h3>
+          <p>AccuLedger's USP is embedding intelligence directly into daily accounting operations — making audits faster, decisions smarter, and business finance management more reliable. XGBoost × 0.5 + IsolationForest × 0.5 ensemble gives the best of supervised learning (known fraud patterns) AND unsupervised anomaly detection (novel patterns). Unlike standalone tools, AccuLedger sits inside the accounting process and makes every entry smarter, automatically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE LINKS -->
+<section class="section section-alt" id="links">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-tag blue">Project Links</div>
+      <h2 class="sec-title">See It <em>Live & In Action</em></h2>
+      <p class="sec-sub">The application is fully deployed and running. Code is open. Demo video shows every feature.</p>
+    </div>
+    <div class="links-grid">
+      <div class="lc anim d1">
+        <div class="lc-icon live">🚀</div>
+        <div class="lc-title">AccuLedger App</div>
+        <div class="lc-sub">Full platform running locally. Create vouchers, run fraud detection, view dashboards.</div>
+        <div class="lc-url">localhost:8000/app</div>
+        <a href="/app" class="btn btn-green" style="justify-content:center">Open AccuLedger →</a>
+      </div>
+      <div class="lc anim d2">
+        <div class="lc-icon gh" style="background:#1A1A2E;color:#fff;font-size:20px;font-weight:800;font-family:'Poppins',sans-serif">GH</div>
+        <div class="lc-title">GitHub Repository</div>
+        <div class="lc-sub">Full source code, commit history, and project structure. Open for review.</div>
+        <div class="lc-url">github.com/DivyaPatel3206/scrutiny_ai</div>
+        <a href="https://github.com/DivyaPatel3206/scrutiny_ai" target="_blank" class="btn btn-navy" style="justify-content:center">View Source →</a>
+      </div>
+      <div class="lc anim d3">
+        <div class="lc-icon vid">▶️</div>
+        <div class="lc-title">Demo Video</div>
+        <div class="lc-sub">Full walkthrough of all features — from voucher entry to AI risk scoring and compliance dashboard.</div>
+        <div class="lc-url">Google Drive · Video Demo</div>
+        <a href="https://drive.google.com/file/d/1xcsM0-UYGUfq0-M1VrnNUsJEJ4HP_e5_/view?usp=sharing" target="_blank" class="btn btn-outline" style="justify-content:center;color:var(--red);border-color:var(--red)">Watch Demo ▶</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="section" id="team">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-tag">The Team</div>
+      <h2 class="sec-title">Meet <em>Team Reapers</em></h2>
+      <p class="sec-sub">India Innovates 2026 — building AccuLedger to bring AI-powered financial intelligence to every CA firm in India.</p>
+    </div>
+    <div class="team-grid">
+      <div class="tc anim d1">
+        <div class="tc-avatar" style="background:linear-gradient(135deg,#0D2B6E,#1A3E8A)">AT</div>
+        <div class="tc-name">Aditya Tyagi</div>
+        <div class="tc-role leader">Team Leader</div>
+      </div>
+      <div class="tc anim d2">
+        <div class="tc-avatar" style="background:linear-gradient(135deg,#3CB54A,#2A8C37)">DP</div>
+        <div class="tc-name">Divya Patel</div>
+        <div class="tc-role">Team Member</div>
+      </div>
+      <div class="tc anim d3">
+        <div class="tc-avatar" style="background:linear-gradient(135deg,#7C3AED,#5B21B6)">AP</div>
+        <div class="tc-name">Anjali Pedwal</div>
+        <div class="tc-role">Team Member</div>
+      </div>
+      <div class="tc anim d4">
+        <div class="tc-avatar" style="background:linear-gradient(135deg,#0891B2,#0E7490)">DB</div>
+        <div class="tc-name">Dhruvita Boricha</div>
+        <div class="tc-role">Team Member</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;padding:20px;background:linear-gradient(135deg,#EBF0FF,#F0FFF4);border-radius:14px;border:1px solid rgba(13,43,110,.1)">
+      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px">🏆 India Innovates 2026 — Hackathon Submission</div>
+      <div style="font-size:13px;color:var(--text2)">Organized by <strong>The FiSTA</strong> · NSUT, DDU College, and partner institutes across India</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container cta-inner">
+    <div class="cta-tag">Try It Now</div>
+    <h2>See AccuLedger <em>Find Fraud</em><br/>That Looked Legitimate</h2>
+    <p>Full application running locally. Source code on GitHub. Demo video available. Experience AI-powered accounting scrutiny in under 5 minutes.</p>
+    <div class="cta-btns">
+      <a href="/app" class="btn btn-green btn-lg">🚀 Open AccuLedger App →</a>
+      <a href="https://drive.google.com/file/d/1xcsM0-UYGUfq0-M1VrnNUsJEJ4HP_e5_/view?usp=sharing" target="_blank" class="btn btn-ghost btn-lg">Watch Demo ▶</a>
+      <a href="https://github.com/DivyaPatel3206/scrutiny_ai" target="_blank" class="btn btn-ghost btn-lg">GitHub →</a>
+    </div>
+    <div class="cert-tags">
+      <span class="cert-t">✓ HSN/GST Auto-Detection</span>
+      <span class="cert-t">✓ XGBoost Fraud Scoring</span>
+      <span class="cert-t">✓ Isolation Forest Anomaly</span>
+      <span class="cert-t">✓ Duplicate Detection</span>
+      <span class="cert-t">✓ GSTR-2B Reconciliation</span>
+      <span class="cert-t">✓ Merkle Audit Chain</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">AccuLedger Pro</div>
+        <div class="footer-desc">AI-Powered Accounting & GST Scrutiny Platform — XGBoost + Isolation Forest fraud detection, HSN/GST lookup, compliance monitoring. Built for India Innovates 2026 by Team Reapers.</div>
+        <div class="footer-tech-tags">
+          <span class="ftt">FastAPI</span><span class="ftt">SQLite</span><span class="ftt">XGBoost</span><span class="ftt">IsoForest</span><span class="ftt">NumPy</span><span class="ftt">Merkle Chain</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-h">Platform</div>
+        <ul class="footer-links">
+          <li><a href="#problem">Problem Statement</a></li>
+          <li><a href="#solution">Our Solution</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#features">Features & USP</a></li>
+          <li><a href="#tech">Tech Stack</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-h">Links</div>
+        <ul class="footer-links">
+          <li><a href="/app">▶ Open App</a></li>
+          <li><a href="https://github.com/DivyaPatel3206/scrutiny_ai" target="_blank">GitHub Repository</a></li>
+          <li><a href="https://drive.google.com/file/d/1xcsM0-UYGUfq0-M1VrnNUsJEJ4HP_e5_/view?usp=sharing" target="_blank">Demo Video</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-h">Team Reapers</div>
+        <ul class="footer-links">
+          <li><a href="#team">Aditya Tyagi (Leader)</a></li>
+          <li><a href="#team">Divya Patel</a></li>
+          <li><a href="#team">Anjali Pedwal</a></li>
+          <li><a href="#team">Dhruvita Boricha</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 AccuLedger · Team Reapers · India Innovates 2026 · Made with ❤️ in India 🇮🇳</p>
+      <div class="fbl">
+        <a href="/app">Open App</a>
+        <a href="https://github.com/DivyaPatel3206/scrutiny_ai" target="_blank">GitHub</a>
+        <a href="#team">Team</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
+// Nav active on scroll
+const secs = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 130) cur = s.id; });
+  links.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + cur); });
+});
+// Animate on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
+}, {threshold: .1});
+document.querySelectorAll('.anim').forEach(el => {
+  el.style.animationPlayState = 'paused'; obs.observe(el);
+});
+</script>
+</body>
+</html>
