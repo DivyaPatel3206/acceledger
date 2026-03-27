@@ -32,7 +32,6 @@ from pydantic import BaseModel
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 DB_PATH    = "acculedger.db"
-SCHEMA_SQL = "schema.sql"
 app = FastAPI(title="AccuLedger Pro", version="1.0")
 
 app.add_middleware(
@@ -56,15 +55,178 @@ def get_db():
     finally:
         conn.close()
 
+# ── Inline schema — never depends on external schema.sql file ─────────────────
+INLINE_SCHEMA = """
+CREATE TABLE IF NOT EXISTS hsn_master (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    hsn_code    TEXT NOT NULL,
+    item_name   TEXT NOT NULL,
+    gst_rate    REAL NOT NULL,
+    section     TEXT DEFAULT '',
+    chapter     TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    is_active   INTEGER DEFAULT 1,
+    created_at  TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_hsn_code     ON hsn_master(hsn_code);
+CREATE INDEX IF NOT EXISTS idx_hsn_gst_rate ON hsn_master(gst_rate);
+CREATE INDEX IF NOT EXISTS idx_hsn_active   ON hsn_master(is_active);
+
+CREATE TABLE IF NOT EXISTS companies (
+    id         TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    gstin      TEXT UNIQUE,
+    pan        TEXT,
+    state      TEXT,
+    fy_start   TEXT,
+    currency   TEXT DEFAULT 'INR',
+    created_at TEXT DEFAULT (datetime('now')),
+    active     INTEGER DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS ledgers (
+    id               TEXT PRIMARY KEY,
+    company_id       TEXT NOT NULL,
+    name             TEXT NOT NULL,
+    grp              TEXT NOT NULL,
+    opening_balance  REAL DEFAULT 0,
+    balance_type     TEXT DEFAULT 'Debit',
+    gst_applicable   INTEGER DEFAULT 0,
+    created_at       TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY(company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS vouchers (
+    id               TEXT PRIMARY KEY,
+    company_id       TEXT NOT NULL,
+    date             TEXT NOT NULL,
+    type             TEXT NOT NULL,
+    party_name       TEXT,
+    gstin            TEXT,
+    gstin_age_days   INTEGER DEFAULT 365,
+    invoice_number   TEXT,
+    hsn_code         TEXT,
+    gst_rate         REAL DEFAULT 18,
+    base_amount      REAL DEFAULT 0,
+    tax_amount       REAL DEFAULT 0,
+    total_amount     REAL DEFAULT 0,
+    narration        TEXT,
+    is_round_number  INTEGER DEFAULT 0,
+    is_march_rush    INTEGER DEFAULT 0,
+    l1_flags         TEXT DEFAULT '',
+    l2_score         INTEGER DEFAULT 0,
+    l3_anomaly       REAL DEFAULT 0,
+    l4_duplicate     TEXT DEFAULT 'Clear',
+    risk_level       TEXT DEFAULT 'Low',
+    gstr2b_match     TEXT DEFAULT 'Matched',
+    review_status    TEXT DEFAULT 'Cleared',
+    ai_flags         TEXT DEFAULT '',
+    created_at       TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY(company_id) REFERENCES companies(id)
+);
+CREATE INDEX IF NOT EXISTS idx_vouchers_company ON vouchers(company_id);
+CREATE INDEX IF NOT EXISTS idx_vouchers_risk    ON vouchers(company_id, risk_level);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts          TEXT DEFAULT (datetime('now')),
+    action      TEXT NOT NULL,
+    tbl         TEXT NOT NULL,
+    record_id   TEXT NOT NULL,
+    after_val   TEXT DEFAULT '{}',
+    entry_hash  TEXT NOT NULL,
+    prev_hash   TEXT NOT NULL
+);
+"""
+
+# ── HSN seed data (inline — no external file needed) ──────────────────────────
+HSN_SEED = [
+    ("8471","Laptop",18,"XVI","84"),("8471","Desktop Computer",18,"XVI","84"),
+    ("8471","Tablet Computer",18,"XVI","84"),("8517","Mobile Phone",18,"XVI","85"),
+    ("8517","Smartphone",18,"XVI","85"),("8443","Printer",18,"XVI","84"),
+    ("8528","TV",18,"XVI","85"),("8528","LED TV",18,"XVI","85"),
+    ("8518","Speaker",18,"XVI","85"),("8518","Headphones",18,"XVI","85"),
+    ("8414","Fan",18,"XVI","84"),("8415","Air Conditioner",28,"XVI","84"),
+    ("8415","AC",28,"XVI","84"),("8418","Refrigerator",18,"XVI","84"),
+    ("8450","Washing Machine",18,"XVI","84"),("8539","LED Bulb",12,"XVI","85"),
+    ("9608","Pen",12,"XX","96"),("9608","Ball Pen",12,"XX","96"),
+    ("9609","Pencil",12,"XX","96"),("4820","Notebook",12,"XX","48"),
+    ("4901","Books",0,"XIX","49"),("4901","Textbooks",0,"XIX","49"),
+    ("0401","Milk",0,"I","04"),("0401","Packed Milk",0,"I","04"),
+    ("0403","Yogurt",0,"I","04"),("0403","Curd / Dahi",0,"I","04"),
+    ("0405","Butter",12,"I","04"),("0406","Cheese",12,"I","04"),
+    ("0406","Paneer",12,"I","04"),("0407","Eggs",0,"I","04"),
+    ("0409","Honey",0,"I","04"),("2105","Ice Cream",18,"IV","21"),
+    ("1006","Rice",0,"II","10"),("1006","Basmati Rice",0,"II","10"),
+    ("1001","Wheat",0,"II","10"),("1101","Flour / Atta",5,"II","11"),
+    ("1101","Wheat Flour",5,"II","11"),("1101","Maida",5,"II","11"),
+    ("0713","Dal",0,"II","07"),("0713","Moong Dal",0,"II","07"),
+    ("0713","Toor Dal",0,"II","07"),("0713","Rajma",0,"II","07"),
+    ("1701","Sugar",5,"IV","17"),("1702","Jaggery / Gur",5,"IV","17"),
+    ("1704","Candy",28,"IV","17"),("1507","Soyabean Oil",5,"III","15"),
+    ("1509","Olive Oil",5,"III","15"),("1512","Sunflower Oil",5,"III","15"),
+    ("1513","Coconut Oil",5,"III","15"),("1514","Mustard Oil",5,"III","15"),
+    ("1508","Groundnut Oil",5,"III","15"),("0701","Potato",0,"II","07"),
+    ("0702","Tomato",0,"II","07"),("0703","Onion",0,"II","07"),
+    ("0803","Banana",0,"II","08"),("0804","Mango",0,"II","08"),
+    ("0808","Apple",0,"II","08"),("0902","Tea",5,"I","09"),
+    ("0902","Green Tea",5,"I","09"),("0901","Coffee",5,"I","09"),
+    ("2101","Instant Coffee",12,"IV","21"),("2201","Packaged Water",0,"IV","22"),
+    ("2202","Cold Drink",18,"IV","22"),("2202","Energy Drink",18,"IV","22"),
+    ("2009","Fruit Juice",12,"IV","20"),("1902","Noodles",18,"IV","19"),
+    ("1902","Instant Noodles",18,"IV","19"),("1902","Pasta",18,"IV","19"),
+    ("1905","Biscuits",18,"IV","19"),("1905","Bread",12,"IV","19"),
+    ("1905","Cake",18,"IV","19"),("1905","Rusk",12,"IV","19"),
+    ("2007","Jam",12,"IV","20"),("2008","Potato Chips",12,"IV","20"),
+    ("2008","Peanut Butter",12,"IV","20"),("2103","Ketchup",12,"IV","21"),
+    ("2103","Garam Masala",12,"IV","21"),("2106","Namkeen / Snacks",18,"IV","21"),
+    ("1806","Chocolate",28,"IV","18"),("0904","Chilli Powder",5,"I","09"),
+    ("0910","Turmeric Powder",5,"I","09"),("2501","Salt",0,"V","25"),
+    ("3305","Shampoo",18,"VI","33"),("3305","Hair Oil",18,"VI","33"),
+    ("3401","Soap",18,"VI","34"),("3401","Bathing Soap",18,"VI","34"),
+    ("3306","Toothpaste",18,"VI","33"),("3307","Deodorant",18,"VI","33"),
+    ("3304","Face Cream",28,"VI","33"),("3304","Face Wash",28,"VI","33"),
+    ("3304","Sunscreen",28,"VI","33"),("3304","Perfume / Attar",28,"VI","33"),
+    ("3808","Sanitiser",18,"VI","38"),("3004","Medicines",12,"VI","30"),
+    ("3004","Medical Tablets",12,"VI","30"),("6109","T-Shirt",5,"XI","61"),
+    ("6203","Jeans",12,"XI","62"),("6203","Trousers",12,"XI","62"),
+    ("6403","Shoes",18,"XII","64"),("6403","Sneakers",18,"XII","64"),
+    ("6302","Towel",12,"XI","63"),("6302","Bed Sheet",12,"XI","63"),
+    ("3923","Plastic Bucket",18,"VII","39"),("3923","Plastic Bottle",18,"VII","39"),
+    ("3917","PVC Pipe",18,"VII","39"),("9403","Furniture",18,"XX","94"),
+    ("9403","Office Chair",18,"XX","94"),("9401","Chair",18,"XX","94"),
+    ("2523","Cement",28,"V","25"),("7214","Steel Rod",18,"XV","72"),
+    ("8703","Car",28,"XVII","87"),("8711","Bike / Motorcycle",28,"XVII","87"),
+    ("8711","Scooter",28,"XVII","87"),("7113","Gold Jewellery",3,"XIV","71"),
+    ("7113","Silver Jewellery",3,"XIV","71"),("0813","Raisins",5,"II","08"),
+    ("0813","Dates",5,"II","08"),("0802","Almond",5,"II","08"),
+    ("0802","Cashew",5,"II","08"),
+]
+
 def init_db():
-    """Create tables and seed data from schema.sql."""
-    if os.path.exists(SCHEMA_SQL):
-        with open(SCHEMA_SQL) as f:
-            sql = f.read()
-        with get_db() as conn:
-            conn.executescript(sql)
-        print(f"[AccuLedger] DB initialised at {DB_PATH}")
-    # Create demo company if none
+    """Create all tables inline (no external schema.sql needed) then seed data."""
+    # Step 1: always create tables first using inline schema
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
+    try:
+        conn.executescript(INLINE_SCHEMA)
+        conn.commit()
+        print(f"[AccuLedger] Tables created/verified at {DB_PATH}")
+    finally:
+        conn.close()
+
+    # Step 2: seed HSN master if empty
+    with get_db() as conn:
+        count = conn.execute("SELECT COUNT(*) FROM hsn_master").fetchone()[0]
+        if count == 0:
+            conn.executemany(
+                "INSERT OR IGNORE INTO hsn_master (hsn_code,item_name,gst_rate,section,chapter) VALUES (?,?,?,?,?)",
+                HSN_SEED
+            )
+            print(f"[AccuLedger] Seeded {len(HSN_SEED)} HSN items")
+
+    # Step 3: seed demo company if no companies exist
     with get_db() as conn:
         count = conn.execute("SELECT COUNT(*) FROM companies").fetchone()[0]
         if count == 0:
