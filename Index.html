@@ -1,373 +1,519 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AccuLedger Pro — GST Fraud Detection</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:     #07090E;
-  --card:   #0C1018;
-  --card2:  #111722;
-  --line:   rgba(255,255,255,.06);
-  --gold:   #E8B84B;
-  --gold-d: rgba(232,184,75,.1);
-  --gold-b: rgba(232,184,75,.25);
-  --text:   #D8E4F0;
-  --mid:    #7A8FA0;
-  --dim:    #3A4A5A;
-  --red:    #E8546A;  --red-d:rgba(232,84,106,.12);
-  --grn:    #3DC98C;  --grn-d:rgba(61,201,140,.12);
-  --blu:    #4A9EF8;  --blu-d:rgba(74,158,248,.12);
-  --ora:    #F07040;  --ora-d:rgba(240,112,64,.12);
-  --pur:    #9B72F0;  --pur-d:rgba(155,114,240,.12);
-  --teal:   #22C4A0;
-  --radius: 12px;
-  --radius-sm: 7px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AccuLedger Pro — GST Fraud Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-/* ── Sidebar ── */
-.sidebar{
-  width:220px;min-width:220px;background:#050810;
-  border-right:1px solid var(--gold-b);
-  display:flex;flex-direction:column;
-  position:fixed;height:100vh;top:0;left:0;z-index:100;
-  overflow-y:auto;
-}
-.sidebar-logo{
-  padding:1.4rem 1.2rem .8rem;
-  border-bottom:1px solid rgba(232,184,75,.12);
-}
-.logo-mark{font-family:'Instrument Serif',serif;font-size:1.3rem;color:var(--gold);line-height:1}
-.logo-sub{font-size:.6rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+  <style>
+    :root {
+      --primary:   #1E3A8A;
+      --primary-m: #2B4FAF;
+      --accent:    #3B82F6;
+      --accent-d:  rgba(59,130,246,.12);
+      --accent-b:  rgba(59,130,246,.28);
 
-.nav-group{padding:.5rem 0}
-.nav-label{
-  font-size:.57rem;text-transform:uppercase;letter-spacing:2px;
-  color:var(--dim);padding:.6rem 1.2rem .2rem;font-weight:600;
-}
-.nav-item{
-  display:flex;align-items:center;gap:.6rem;
-  padding:.55rem 1.2rem;font-size:.82rem;color:var(--mid);
-  cursor:pointer;transition:.15s;border-left:2px solid transparent;
-  user-select:none;
-}
-.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
-.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:var(--gold-d)}
-.nav-icon{font-size:1rem;width:18px;text-align:center}
+      --bg:        #F8FAFC;
+      --surface:   #FFFFFF;
+      --surface2:  #F1F5F9;
+      --border:    #E5E7EB;
+      --border-m:  #D1D5DB;
 
-.sidebar-footer{
-  margin-top:auto;padding:1rem;border-top:1px solid var(--line);
-  font-size:.65rem;color:var(--dim);
-}
-.db-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--grn);margin-right:5px}
+      --text:      #111827;
+      --text-2:    #374151;
+      --text-3:    #6B7280;
+      --text-4:    #9CA3AF;
 
-/* ── Main ── */
-.main{margin-left:220px;flex:1;min-height:100vh;padding:1.5rem}
+      --green:     #22C55E;
+      --green-d:   rgba(34,197,94,.1);
+      --green-b:   rgba(34,197,94,.25);
+
+      --amber:     #F59E0B;
+      --amber-d:   rgba(245,158,11,.1);
+      --amber-b:   rgba(245,158,11,.28);
+
+      --red:       #EF4444;
+      --red-d:     rgba(239,68,68,.1);
+      --red-b:     rgba(239,68,68,.28);
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --shadow:    0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+      --shadow-lg: 0 10px 28px rgba(0,0,0,.1), 0 4px 8px rgba(0,0,0,.05);
+      --radius:    10px;
+      --radius-sm: 6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+.sidebar {
+  width: 228px; min-width: 228px;
+  background: var(--primary);
+  display: flex; flex-direction: column;
+  position: fixed; height: 100vh; top: 0; left: 0; z-index: 100;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(30,58,138,.15);
+}
+.sidebar-logo {
+  padding: 1.3rem 1.2rem .9rem;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.logo-mark {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem; font-weight: 800;
+  color: #fff; line-height: 1;
+  letter-spacing: -.3px;
+}
+.logo-mark span { color: #93C5FD; }
+.logo-sub {
+  font-size: .58rem; color: rgba(255,255,255,.5);
+  letter-spacing: 1.8px; text-transform: uppercase; margin-top: 3px;
+}
+
+.nav-group { padding: .4rem 0; }
+.nav-label {
+  font-size: .58rem; text-transform: uppercase; letter-spacing: 1.5px;
+  color: rgba(255,255,255,.4); padding: .6rem 1.2rem .25rem; font-weight: 700;
+}
+.nav-item {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .5rem 1.2rem; font-size: .82rem;
+  color: rgba(255,255,255,.7);
+  cursor: pointer; transition: .15s;
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { color: #fff; background: rgba(255,255,255,.07); }
+.nav-item.active {
+  color: #fff; font-weight: 600;
+  border-left-color: #93C5FD;
+  background: rgba(255,255,255,.12);
+}
+.nav-icon { font-size: .95rem; width: 18px; text-align: center; }
+
+.sidebar-footer {
+  margin-top: auto; padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+  font-size: .62rem; color: rgba(255,255,255,.4);
+}
+.db-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--green); margin-right: 5px;
+}
+
+/* ── Main content ── */
+.main { margin-left: 228px; flex: 1; min-height: 100vh; padding: 1.4rem; }
 
 /* ── Company bar ── */
-.company-bar{
-  display:flex;align-items:center;gap:.8rem;
-  background:var(--card);border:1px solid var(--line);
-  border-radius:var(--radius);padding:.7rem 1.2rem;
-  margin-bottom:1.2rem;
+.company-bar {
+  display: flex; align-items: center; gap: .8rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .65rem 1.1rem;
+  margin-bottom: 1.2rem;
+  box-shadow: var(--shadow-sm);
 }
-.company-bar select{
-  background:transparent;border:none;color:var(--text);
-  font-size:.85rem;font-family:'Outfit',sans-serif;cursor:pointer;
-  outline:none;flex:1;
+.company-bar select {
+  background: transparent; border: none; color: var(--text);
+  font-size: .85rem; cursor: pointer; outline: none; flex: 1;
 }
-.company-bar select option{background:#0C1018}
-.co-badge{
-  font-size:.65rem;background:var(--gold-d);color:var(--gold);
-  border:1px solid var(--gold-b);border-radius:20px;padding:2px 8px;
-  font-weight:600;white-space:nowrap;
+.company-bar select option { background: #fff; }
+.co-badge {
+  font-size: .63rem; background: var(--accent-d); color: var(--accent);
+  border: 1px solid var(--accent-b); border-radius: 20px; padding: 2px 9px;
+  font-weight: 700; white-space: nowrap;
 }
-.txn-toggle{display:flex;gap:.4rem;margin-left:auto}
-.txn-btn{
-  font-size:.7rem;padding:4px 10px;border-radius:20px;
-  border:1px solid var(--line);background:transparent;
-  color:var(--mid);cursor:pointer;font-family:'Outfit',sans-serif;
-  transition:.15s;
+.txn-toggle { display: flex; gap: .3rem; margin-left: auto; }
+.txn-btn {
+  font-size: .68rem; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-3); cursor: pointer; transition: .15s;
 }
-.txn-btn.active{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold)}
+.txn-btn.active {
+  background: var(--accent-d); border-color: var(--accent-b); color: var(--accent);
+  font-weight: 600;
+}
 
 /* ── Pages ── */
-.page{display:none;animation:fadeIn .2s ease}
-.page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page { display: none; animation: fadeIn .18s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:translateY(0) } }
 
-/* ── Hero ── */
-.hero{
-  background:linear-gradient(135deg,#07090E 0%,#0C1420 50%,#080C14 100%);
-  border:1px solid var(--gold-b);border-radius:16px;
-  padding:1.8rem 2rem;margin-bottom:1.2rem;position:relative;overflow:hidden;
+/* ── Hero banner ── */
+.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-m) 60%, #1D4ED8 100%);
+  border-radius: 12px;
+  padding: 1.6rem 2rem; margin-bottom: 1.3rem;
+  position: relative; overflow: hidden;
 }
-.hero::before{
-  content:'';position:absolute;top:-60px;right:-60px;
-  width:280px;height:280px;
-  background:radial-gradient(circle,rgba(232,184,75,.07),transparent 65%);
+.hero::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(147,197,253,.12), transparent 65%);
 }
-.hero-title{
-  font-family:'Instrument Serif',serif;font-size:1.9rem;color:var(--gold);
-  margin-bottom:.2rem;
+.hero-title {
+  font-size: 1.55rem; font-weight: 800; color: #fff;
+  margin-bottom: .2rem; letter-spacing: -.3px;
 }
-.hero-sub{font-size:.75rem;color:var(--mid);text-transform:uppercase;letter-spacing:2px}
-.hero-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
-.tag{
-  font-size:.62rem;font-family:'DM Mono',monospace;
-  padding:2px 8px;border-radius:20px;font-weight:500;
+.hero-sub {
+  font-size: .7rem; color: rgba(255,255,255,.6);
+  text-transform: uppercase; letter-spacing: 1.8px;
 }
-.tag-g{background:var(--grn-d);border:1px solid rgba(61,201,140,.3);color:var(--grn)}
-.tag-b{background:var(--blu-d);border:1px solid rgba(74,158,248,.3);color:var(--blu)}
-.tag-gold{background:var(--gold-d);border:1px solid var(--gold-b);color:var(--gold)}
+.hero-tags { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .8rem; }
+.tag {
+  font-size: .6rem; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.tag-g { background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.3); color: #86EFAC; }
+.tag-b { background: rgba(147,197,253,.15); border: 1px solid rgba(147,197,253,.3); color: #BAE6FD; }
+.tag-gold { background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.3); color: #FCD34D; }
 
-/* ── KPI grid ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.2rem}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.9rem 1.1rem}
-.kpi.r{border-color:rgba(232,84,106,.25)} .kpi.o{border-color:rgba(240,112,64,.25)}
-.kpi.g{border-color:rgba(61,201,140,.2)}  .kpi.b{border-color:rgba(74,158,248,.2)}
-.kpi-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-bottom:.25rem;font-weight:600}
-.kpi-val{font-family:'Instrument Serif',serif;font-size:1.8rem;line-height:1}
-.kpi.r .kpi-val{color:var(--red)} .kpi.o .kpi-val{color:var(--ora)}
-.kpi.g .kpi-val{color:var(--grn)} .kpi.b .kpi-val{color:var(--blu)}
-.kpi-note{font-size:.65rem;color:var(--dim);margin-top:.2rem}
+/* ── KPI cards ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .8rem; margin-bottom: 1.2rem; }
+.kpi {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .9rem 1rem;
+  box-shadow: var(--shadow-sm); transition: .2s;
+}
+.kpi:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.kpi.r { border-left: 4px solid var(--red);   }
+.kpi.o { border-left: 4px solid var(--amber);  }
+.kpi.g { border-left: 4px solid var(--green);  }
+.kpi.b { border-left: 4px solid var(--accent); }
+.kpi-lbl {
+  font-size: .62rem; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-3); margin-bottom: .3rem; font-weight: 600;
+}
+.kpi-val { font-size: 1.75rem; font-weight: 800; line-height: 1; color: var(--text); }
+.kpi.r .kpi-val { color: var(--red);    }
+.kpi.o .kpi-val { color: var(--amber);  }
+.kpi.g .kpi-val { color: #16A34A;       }
+.kpi.b .kpi-val { color: var(--accent); }
+.kpi-note { font-size: .63rem; color: var(--text-4); margin-top: .2rem; }
 
 /* ── Section header ── */
-.shdr{
-  font-weight:600;font-size:.88rem;color:var(--text);
-  border-left:3px solid var(--gold);padding-left:.65rem;margin:1.2rem 0 .6rem;
+.shdr {
+  font-weight: 700; font-size: .85rem; color: var(--text);
+  border-left: 3px solid var(--accent);
+  padding-left: .65rem; margin: 1.2rem 0 .6rem;
 }
 
 /* ── Cards ── */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:.6rem}
-.card.danger{border-color:rgba(232,84,106,.35)}
-.card.warn{border-color:rgba(240,112,64,.3)}
-.card.ok{border-color:rgba(61,201,140,.25)}
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.2rem 1.4rem;
+  margin-bottom: .6rem; box-shadow: var(--shadow-sm);
+}
+.card.danger { border-color: var(--red-b);   background: #FFF5F5; }
+.card.warn   { border-color: var(--amber-b); background: #FFFBEB; }
+.card.ok     { border-color: var(--green-b); background: #F0FFF4; }
 
 /* ── Forms ── */
-.form-grid{display:grid;gap:.8rem}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
-.field{display:flex;flex-direction:column;gap:.3rem}
-.field label{font-size:.68rem;color:var(--mid);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
-.field input,.field select,.field textarea{
-  background:var(--card2);border:1px solid var(--line);
-  color:var(--text);border-radius:var(--radius-sm);
-  padding:.5rem .75rem;font-family:'Outfit',sans-serif;font-size:.85rem;
-  outline:none;transition:.15s;
+.form-grid { display: grid; gap: .85rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+.form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.field { display: flex; flex-direction: column; gap: .3rem; }
+.field label {
+  font-size: .68rem; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: .7px; font-weight: 700;
 }
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold-b)}
-.field textarea{resize:vertical;min-height:70px}
-.field select option{background:#111722}
+.field input, .field select, .field textarea {
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--text); border-radius: var(--radius-sm);
+  padding: .5rem .8rem; font-size: .85rem; outline: none; transition: .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-d);
+}
+.field input:hover, .field select:hover { border-color: var(--border-m); }
+.field textarea { resize: vertical; min-height: 70px; }
+.field select option { background: #fff; color: var(--text); }
 
 /* ── Buttons ── */
-.btn{
-  display:inline-flex;align-items:center;gap:.4rem;
-  padding:.55rem 1.1rem;border-radius:var(--radius-sm);
-  font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;
-  cursor:pointer;border:none;transition:.15s;
+.btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .52rem 1rem; border-radius: var(--radius-sm);
+  font-size: .82rem; font-weight: 600;
+  cursor: pointer; border: none; transition: .15s;
 }
-.btn-primary{background:var(--gold);color:#000}
-.btn-primary:hover{background:#f0c862}
-.btn-secondary{background:transparent;border:1px solid var(--gold-b);color:var(--gold)}
-.btn-secondary:hover{background:var(--gold-d)}
-.btn-danger{background:transparent;border:1px solid rgba(232,84,106,.4);color:var(--red)}
-.btn-sm{padding:.35rem .75rem;font-size:.75rem}
+.btn-primary {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 2px 8px rgba(59,130,246,.3);
+}
+.btn-primary:hover {
+  background: #2563EB; box-shadow: 0 4px 12px rgba(59,130,246,.4);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--text-2);
+}
+.btn-secondary:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: var(--accent-d);
+}
+.btn-danger {
+  background: transparent; border: 1.5px solid var(--red-b); color: var(--red);
+}
+.btn-danger:hover { background: var(--red-d); }
+.btn-sm { padding: .32rem .7rem; font-size: .74rem; }
 
 /* ── Table ── */
-.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--line)}
-table{width:100%;border-collapse:collapse;font-size:.8rem}
-thead tr{background:var(--card2)}
-th{padding:.55rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600;white-space:nowrap}
-td{padding:.55rem .9rem;border-top:1px solid var(--line);color:var(--mid);white-space:nowrap}
-tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
+.tbl-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+thead tr { background: var(--surface2); border-bottom: 2px solid var(--border); }
+th {
+  padding: .6rem .9rem; text-align: left; font-size: .64rem;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-3); font-weight: 700; white-space: nowrap;
+}
+td {
+  padding: .55rem .9rem; border-top: 1px solid var(--border);
+  color: var(--text-2); white-space: nowrap;
+}
+tr:hover td { background: #F0F7FF; color: var(--text); }
 
 /* ── Risk pills ── */
-.risk-high{background:var(--red-d);color:var(--red);border:1px solid rgba(232,84,106,.35);border-radius:20px;padding:2px 8px;font-size:.65rem;font-weight:700;font-family:'DM Mono',monospace}
-.risk-med{background:var(--ora-d);color:var(--ora);border:1px solid rgba(240,112,64,.35);border-radius:20px;padding:2px 8px;font-size:.65rem;font-weight:700;font-family:'DM Mono',monospace}
-.risk-low{background:var(--grn-d);color:var(--grn);border:1px solid rgba(61,201,140,.3);border-radius:20px;padding:2px 8px;font-size:.65rem;font-weight:700;font-family:'DM Mono',monospace}
+.risk-high {
+  background: #FEE2E2; color: #B91C1C;
+  border: 1px solid #FECACA; border-radius: 20px;
+  padding: 2px 9px; font-size: .64rem; font-weight: 700;
+}
+.risk-med {
+  background: #FEF3C7; color: #92400E;
+  border: 1px solid #FDE68A; border-radius: 20px;
+  padding: 2px 9px; font-size: .64rem; font-weight: 700;
+}
+.risk-low {
+  background: #DCFCE7; color: #166534;
+  border: 1px solid #BBF7D0; border-radius: 20px;
+  padding: 2px 9px; font-size: .64rem; font-weight: 700;
+}
 
 /* ── GST badges ── */
-.gst-0{background:rgba(61,201,140,.15);color:var(--grn);border:1px solid rgba(61,201,140,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
-.gst-3{background:rgba(74,158,248,.15);color:var(--blu);border:1px solid rgba(74,158,248,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
-.gst-5{background:var(--gold-d);color:var(--gold);border:1px solid var(--gold-b);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
-.gst-12{background:rgba(240,112,64,.15);color:var(--ora);border:1px solid rgba(240,112,64,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
-.gst-18{background:rgba(232,84,106,.15);color:var(--red);border:1px solid rgba(232,84,106,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
-.gst-28{background:var(--pur-d);color:var(--pur);border:1px solid rgba(155,114,240,.3);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700}
+.gst-0  { background:#DCFCE7; color:#15803D; border:1px solid #BBF7D0; padding:2px 9px; border-radius:20px; font-size:.73rem; font-weight:700; }
+.gst-3  { background:#DBEAFE; color:#1D4ED8; border:1px solid #BFDBFE; padding:2px 9px; border-radius:20px; font-size:.73rem; font-weight:700; }
+.gst-5  { background:#FEF3C7; color:#92400E; border:1px solid #FDE68A; padding:2px 9px; border-radius:20px; font-size:.73rem; font-weight:700; }
+.gst-12 { background:#FFF7ED; color:#C2410C; border:1px solid #FED7AA; padding:2px 9px; border-radius:20px; font-size:.73rem; font-weight:700; }
+.gst-18 { background:#FEE2E2; color:#B91C1C; border:1px solid #FECACA; padding:2px 9px; border-radius:20px; font-size:.73rem; font-weight:700; }
+.gst-28 { background:#F3E8FF; color:#6B21A8; border:1px solid #E9D5FF; padding:2px 9px; border-radius:20px; font-size:.73rem; font-weight:700; }
 
-/* ── Match pill ── */
-.mp-exact{background:var(--grn-d);color:var(--grn);border:1px solid rgba(61,201,140,.3)}
-.mp-prefix{background:var(--blu-d);color:var(--blu);border:1px solid rgba(74,158,248,.3)}
-.mp-contains{background:var(--gold-d);color:var(--gold);border:1px solid var(--gold-b)}
-.mp-fuzzy{background:var(--ora-d);color:var(--ora);border:1px solid rgba(240,112,64,.3)}
-[class^="mp-"]{border-radius:20px;padding:1px 7px;font-size:.62rem;font-weight:600;font-family:'DM Mono',monospace}
+/* ── Match pills ── */
+.mp-exact   { background:#DCFCE7; color:#15803D; border:1px solid #BBF7D0; }
+.mp-prefix  { background:#DBEAFE; color:#1D4ED8; border:1px solid #BFDBFE; }
+.mp-contains{ background:#FEF3C7; color:#92400E; border:1px solid #FDE68A; }
+.mp-fuzzy   { background:#FFF7ED; color:#C2410C; border:1px solid #FED7AA; }
+[class^="mp-"] { border-radius:20px; padding:1px 7px; font-size:.62rem; font-weight:600; }
 
-/* ── Search wrap ── */
-.search-wrap{background:var(--card);border:1px solid var(--gold-b);border-radius:var(--radius);padding:1rem 1.3rem;margin-bottom:1rem}
-.search-row{display:grid;grid-template-columns:1fr auto auto;gap:.7rem;align-items:end}
-.search-row .field{margin:0}
+/* ── Search ── */
+.search-wrap {
+  background: var(--surface); border: 2px solid var(--accent-b);
+  border-radius: var(--radius); padding: 1rem 1.2rem;
+  margin-bottom: 1rem; box-shadow: var(--shadow-sm);
+}
+.search-row { display: grid; grid-template-columns: 1fr auto auto; gap: .7rem; align-items: end; }
+.search-row .field { margin: 0; }
 
 /* ── Result card ── */
-.result-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.9rem 1.2rem;margin-bottom:.5rem;transition:.15s}
-.result-card:hover{border-color:rgba(232,184,75,.3)}
-.result-card.top-result{border-color:rgba(61,201,140,.35)}
-.result-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem}
-.result-name{font-weight:600;font-size:.92rem;color:var(--text)}
-.result-meta{display:flex;align-items:center;gap:.6rem;margin-top:.3rem;flex-wrap:wrap}
-.hsn-code{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--gold);font-weight:600}
-.sim-row{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
-.sim-bar-wrap{flex:1;background:rgba(255,255,255,.05);border-radius:3px;height:5px}
-.sim-bar{height:5px;border-radius:3px}
-.sim-label{font-size:.62rem;color:var(--dim);min-width:55px}
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .9rem 1.1rem;
+  margin-bottom: .45rem; transition: .15s;
+  box-shadow: var(--shadow-sm);
+}
+.result-card:hover { border-color: var(--accent-b); box-shadow: var(--shadow); }
+.result-card.top-result { border-color: var(--green-b); border-left: 3px solid var(--green); }
+.result-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: .5rem; }
+.result-name { font-weight: 700; font-size: .9rem; color: var(--text); }
+.result-meta { display: flex; align-items: center; gap: .55rem; margin-top: .3rem; flex-wrap: wrap; }
+.hsn-code { font-size: .8rem; color: var(--primary); font-weight: 700; font-family: 'DM Mono', monospace; }
+.sim-row { display: flex; align-items: center; gap: .5rem; margin-top: .5rem; }
+.sim-bar-wrap { flex: 1; background: var(--surface2); border-radius: 3px; height: 5px; }
+.sim-bar { height: 5px; border-radius: 3px; }
+.sim-label { font-size: .62rem; color: var(--text-4); min-width: 55px; }
 
 /* ── Tax box ── */
-.tax-box{
-  background:linear-gradient(135deg,var(--card),var(--card2));
-  border:1px solid var(--gold-b);border-radius:var(--radius);padding:1.2rem 1.4rem;
+.tax-box {
+  background: var(--surface); border: 2px solid var(--accent-b);
+  border-radius: var(--radius); padding: 1.2rem 1.3rem;
+  box-shadow: var(--shadow-sm);
 }
-.tax-row{display:flex;justify-content:space-between;align-items:center;padding:.25rem 0;font-size:.82rem}
-.tax-row.total-row{border-top:1px solid var(--line);margin-top:.3rem;padding-top:.5rem}
-.tax-label{color:var(--mid)}
-.tax-val{font-family:'DM Mono',monospace;font-weight:600}
-.tax-total-val{font-family:'DM Mono',monospace;font-weight:700;color:var(--gold);font-size:1rem}
+.tax-row { display: flex; justify-content: space-between; align-items: center; padding: .28rem 0; font-size: .82rem; }
+.tax-row.total-row { border-top: 1.5px solid var(--border); margin-top: .4rem; padding-top: .55rem; }
+.tax-label { color: var(--text-3); }
+.tax-val { font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; }
+.tax-total-val { font-weight: 800; color: var(--primary); font-size: 1rem; font-family: 'DM Mono', monospace; }
 
 /* ── Tabs ── */
-.tabs{display:flex;gap:.3rem;margin-bottom:1rem;border-bottom:1px solid var(--line);padding-bottom:0}
-.tab{
-  padding:.5rem 1rem;font-size:.8rem;color:var(--mid);cursor:pointer;
-  border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;
+.tabs { display: flex; gap: 0; margin-bottom: 1rem; border-bottom: 2px solid var(--border); }
+.tab {
+  padding: .5rem 1.1rem; font-size: .8rem; font-weight: 600;
+  color: var(--text-3); cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: .15s;
 }
-.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-.tab-panel{display:none}.tab-panel.active{display:block}
+.tab:hover { color: var(--accent); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; } .tab-panel.active { display: block; }
 
-/* ── Layer backtrack ── */
-.bt-card{background:var(--card2);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.2rem;margin-bottom:.4rem}
-.bt-header{display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem}
-.bt-layer-id{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:600;min-width:35px}
-.bt-layer-name{font-weight:600;font-size:.85rem}
-.bt-type{font-size:.62rem;background:rgba(255,255,255,.05);padding:2px 7px;border-radius:4px;color:var(--mid)}
-.bt-latency{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--dim);margin-left:auto}
-.bt-decision{font-size:.8rem;color:var(--text);margin-bottom:.3rem}
-.bt-evidence{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--dim);background:#030508;padding:.35rem .6rem;border-radius:4px}
+/* ── Backtrack ── */
+.bt-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .9rem 1.1rem; margin-bottom: .4rem;
+  box-shadow: var(--shadow-sm);
+}
+.bt-header { display: flex; align-items: center; gap: .8rem; margin-bottom: .4rem; }
+.bt-layer-id { font-size: .78rem; font-weight: 800; min-width: 35px; font-family: 'DM Mono', monospace; }
+.bt-layer-name { font-weight: 700; font-size: .85rem; color: var(--text); }
+.bt-type {
+  font-size: .6rem; background: var(--surface2); padding: 2px 7px;
+  border-radius: 4px; color: var(--text-4); border: 1px solid var(--border);
+}
+.bt-latency { font-size: .6rem; color: var(--text-4); margin-left: auto; font-family: 'DM Mono', monospace; }
+.bt-decision { font-size: .8rem; color: var(--text-2); margin-bottom: .3rem; }
+.bt-evidence {
+  font-family: 'DM Mono', monospace; font-size: .65rem;
+  color: var(--text-3); background: var(--surface2);
+  padding: .35rem .65rem; border-radius: 4px;
+  border: 1px solid var(--border);
+}
 
 /* ── SHAP bars ── */
-.shap-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
-.shap-label{width:160px;font-size:.72rem;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shap-bar-wrap{flex:1;background:rgba(255,255,255,.04);border-radius:3px;height:10px}
-.shap-bar{height:10px;border-radius:3px;transition:width .3s}
-.shap-val{width:45px;text-align:right;font-family:'DM Mono',monospace;font-size:.68rem;font-weight:600}
+.shap-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; }
+.shap-label { width: 160px; font-size: .72rem; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shap-bar-wrap { flex: 1; background: var(--surface2); border-radius: 3px; height: 9px; border: 1px solid var(--border); }
+.shap-bar { height: 9px; border-radius: 2px; transition: width .3s; }
+.shap-val { width: 45px; text-align: right; font-family: 'DM Mono', monospace; font-size: .68rem; font-weight: 700; }
 
 /* ── Notice boxes ── */
-.note{border-radius:var(--radius-sm);padding:.6rem 1rem;font-size:.8rem;margin-bottom:.8rem}
-.note-ok{background:var(--grn-d);border:1px solid rgba(61,201,140,.3);color:#A0FFD8}
-.note-err{background:var(--red-d);border:1px solid rgba(232,84,106,.3);color:#FFB0C0}
-.note-warn{background:var(--ora-d);border:1px solid rgba(240,112,64,.3);color:#FFD0A0}
-.note-info{background:var(--blu-d);border:1px solid rgba(74,158,248,.3);color:#C0D8FF}
+.note { border-radius: var(--radius-sm); padding: .65rem 1rem; font-size: .8rem; margin-bottom: .8rem; }
+.note-ok   { background: #F0FFF4; border: 1px solid var(--green-b); color: #15803D; }
+.note-err  { background: #FFF5F5; border: 1px solid var(--red-b);   color: #B91C1C; }
+.note-warn { background: #FFFBEB; border: 1px solid var(--amber-b); color: #92400E; }
+.note-info { background: #EFF6FF; border: 1px solid var(--accent-b);color: #1D4ED8; }
 
 /* ── Pagination ── */
-.pagination{display:flex;align-items:center;gap:.5rem;margin-top:.8rem;justify-content:center}
-.page-btn{background:var(--card2);border:1px solid var(--line);color:var(--mid);border-radius:var(--radius-sm);padding:.35rem .8rem;cursor:pointer;font-size:.78rem;font-family:'Outfit',sans-serif;transition:.15s}
-.page-btn:hover{border-color:var(--gold-b);color:var(--gold)}
-.page-btn:disabled{opacity:.3;cursor:not-allowed}
-.page-info{font-size:.75rem;color:var(--dim);padding:0 .5rem}
+.pagination { display: flex; align-items: center; gap: .4rem; margin-top: .8rem; justify-content: center; }
+.page-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-2); border-radius: var(--radius-sm);
+  padding: .35rem .8rem; cursor: pointer; font-size: .78rem; transition: .15s;
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-d); }
+.page-btn:disabled { opacity: .35; cursor: not-allowed; }
+.page-info { font-size: .73rem; color: var(--text-4); padding: 0 .5rem; }
 
 /* ── Ledger tree ── */
-.ledger-group-header{
-  background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);
-  padding:.5rem .9rem;margin-bottom:.3rem;cursor:pointer;
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:.82rem;font-weight:600;
+.ledger-group-header {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .52rem .9rem;
+  margin-bottom: .3rem; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .82rem; font-weight: 600; color: var(--text);
+  transition: .15s;
 }
-.ledger-group-header:hover{border-color:var(--gold-b)}
-.ledger-items{margin:.2rem 0 .3rem 1rem;display:none}
-.ledger-items.open{display:block}
-.ledger-item{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);
-  padding:.35rem .8rem;margin-bottom:.2rem;display:flex;justify-content:space-between;
-  align-items:center;font-size:.78rem;
+.ledger-group-header:hover { border-color: var(--accent-b); background: #EFF6FF; }
+.ledger-items { margin: .2rem 0 .3rem 1rem; display: none; }
+.ledger-items.open { display: block; }
+.ledger-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .38rem .8rem;
+  margin-bottom: .2rem; display: flex; justify-content: space-between;
+  align-items: center; font-size: .78rem;
 }
-.bal-dr{color:var(--red);font-family:'DM Mono',monospace;font-size:.75rem}
-.bal-cr{color:var(--grn);font-family:'DM Mono',monospace;font-size:.75rem}
+.bal-dr { color: var(--red);   font-family: 'DM Mono', monospace; font-size: .75rem; font-weight: 700; }
+.bal-cr { color: #16A34A;      font-family: 'DM Mono', monospace; font-size: .75rem; font-weight: 700; }
 
 /* ── GSTN verify box ── */
-.gstn-box{
-  background:#030508;border:1px solid rgba(255,255,255,.06);
-  border-radius:var(--radius);padding:1rem;font-family:'DM Mono',monospace;font-size:.72rem;
+.gstn-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem;
+  font-family: 'DM Mono', monospace; font-size: .72rem;
 }
-.gstn-row{display:flex;gap:.5rem;margin-bottom:.3rem}
-.gstn-key{color:var(--dim);min-width:130px}
+.gstn-row { display: flex; gap: .5rem; margin-bottom: .3rem; }
+.gstn-key { color: var(--text-3); min-width: 130px; }
 
-/* ── Pipeline visual ── */
-.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1rem}
-.pipe-node{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  padding:.8rem .6rem;text-align:center;position:relative;
+/* ── Pipeline ── */
+.pipeline { display: grid; grid-template-columns: repeat(5,1fr); gap: .6rem; margin-bottom: 1rem; }
+.pipe-node {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .8rem .6rem;
+  text-align: center; position: relative; box-shadow: var(--shadow-sm);
 }
-.pipe-node::after{
-  content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);
-  color:var(--dim);font-size:.8rem;pointer-events:none;
+.pipe-node::after {
+  content: '→'; position: absolute; right: -13px; top: 50%;
+  transform: translateY(-50%); color: var(--text-4); font-size: .8rem;
 }
-.pipe-node:last-child::after{display:none}
-.pipe-title{font-weight:700;font-size:.78rem;margin-bottom:.2rem}
-.pipe-desc{color:var(--mid);font-size:.65rem;line-height:1.4}
-.pipe-lat{font-family:'DM Mono',monospace;font-size:.6rem;margin-top:.3rem}
+.pipe-node:last-child::after { display: none; }
+.pipe-title { font-weight: 700; font-size: .77rem; margin-bottom: .2rem; color: var(--text); }
+.pipe-desc  { color: var(--text-3); font-size: .64rem; line-height: 1.4; }
+.pipe-lat   { font-family: 'DM Mono', monospace; font-size: .59rem; margin-top: .3rem; color: var(--text-4); }
 
 /* ── Compliance matrix ── */
-.compliance-row{
-  display:flex;align-items:flex-start;gap:.8rem;
-  padding:.6rem .9rem;border-radius:var(--radius-sm);margin-bottom:.3rem;
-  border:1px solid var(--line);
+.compliance-row {
+  display: flex; align-items: flex-start; gap: .8rem;
+  padding: .6rem .9rem; border-radius: var(--radius-sm);
+  margin-bottom: .3rem; border: 1px solid var(--border);
+  background: var(--surface);
 }
-.c-ok{background:rgba(61,201,140,.04);border-color:rgba(61,201,140,.2)}
-.c-warn{background:rgba(240,112,64,.04);border-color:rgba(240,112,64,.25)}
-.c-icon{font-size:1rem;margin-top:1px}
-.c-law{font-weight:600;font-size:.82rem;margin-bottom:2px}
-.c-detail{font-size:.72rem;color:var(--mid)}
-.c-penalty{font-size:.67rem;color:var(--dim);margin-left:auto;text-align:right;min-width:130px;flex-shrink:0}
+.c-ok   { border-color: var(--green-b);  background: #F0FFF4; }
+.c-warn { border-color: var(--amber-b);  background: #FFFBEB; }
+.c-icon { font-size: 1rem; margin-top: 1px; }
+.c-law  { font-weight: 700; font-size: .82rem; margin-bottom: 2px; color: var(--text); }
+.c-detail { font-size: .72rem; color: var(--text-3); }
+.c-penalty { font-size: .67rem; color: var(--text-4); margin-left: auto; text-align: right; min-width: 130px; flex-shrink: 0; }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface2); }
+::-webkit-scrollbar-thumb { background: var(--border-m); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 /* ── Spinner ── */
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(232,184,75,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-row{display:flex;align-items:center;gap:.6rem;padding:.6rem;color:var(--mid);font-size:.8rem}
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid var(--accent-d); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .65s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg) } }
+.loading-row { display: flex; align-items: center; gap: .6rem; padding: .8rem; color: var(--text-3); font-size: .8rem; }
 
-/* ── Stat grid for GSTR ── */
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1rem}
-.stat-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem 1rem}
-.stat-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:.2rem}
-.stat-val{font-family:'Instrument Serif',serif;font-size:1.5rem}
+/* ── Stat grid ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .8rem; margin-bottom: 1rem; }
+.stat-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .85rem 1rem; box-shadow: var(--shadow-sm);
+}
+.stat-lbl { font-size: .62rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-4); margin-bottom: .25rem; font-weight: 600; }
+.stat-val { font-size: 1.55rem; font-weight: 800; color: var(--text); }
 
 /* ── Alert banner ── */
-.alert-banner{
-  background:var(--red-d);border:1px solid rgba(232,84,106,.4);
-  border-radius:var(--radius-sm);padding:.6rem 1rem;
-  display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--red);
-  margin-bottom:.8rem;
+.alert-banner {
+  background: #FEF2F2; border: 1px solid #FECACA;
+  border-radius: var(--radius-sm); padding: .65rem 1rem;
+  display: flex; align-items: center; gap: .6rem;
+  font-size: .82rem; color: #B91C1C; margin-bottom: .8rem;
+  font-weight: 600;
 }
 
 /* ── Quick ref ── */
-.qref-row{
-  display:flex;gap:.8rem;padding:.45rem .8rem;background:var(--card);
-  border-radius:var(--radius-sm);margin-bottom:.3rem;
-  border-left:3px solid var(--line);
+.qref-row {
+  display: flex; gap: .8rem; padding: .48rem .85rem;
+  background: var(--surface); border-radius: var(--radius-sm);
+  margin-bottom: .3rem; border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
 }
-.qref-rate{min-width:90px;font-weight:600;font-size:.78rem}
-.qref-items{font-size:.76rem;color:var(--mid)}
+.qref-rate  { min-width: 90px; font-weight: 700; font-size: .78rem; }
+.qref-items { font-size: .76rem; color: var(--text-3); }
 </style>
-</head>
-<body>
-
-<!-- ═══ SIDEBAR ═══ -->
+AR ═══ -->
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">AccuLedger</div>
@@ -439,7 +585,7 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
 
   <!-- Company bar -->
   <div class="company-bar">
-    <span style="font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;white-space:nowrap">Active Company</span>
+    <span style="font-size:.7rem;color:var(--text-4);text-transform:uppercase;letter-spacing:1px;white-space:nowrap">Active Company</span>
     <select id="companySelect" onchange="setCompany(this.value)">
       <option value="">Loading...</option>
     </select>
@@ -485,29 +631,29 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
     <div class="shdr" style="margin-top:1.5rem">How Each Entry Is Checked</div>
     <div class="pipeline">
       <div class="pipe-node">
-        <div class="pipe-title" style="color:var(--blu)">Rules Check</div>
+        <div class="pipe-title" style="color:var(--accent)">Rules Check</div>
         <div class="pipe-desc">GSTIN format · Missing fields · HSN-GST mismatch · Balance check</div>
-        <div class="pipe-lat" style="color:var(--grn)">&lt;2ms · Always runs</div>
+        <div class="pipe-lat" style="color:#16A34A">&lt;2ms · Always runs</div>
       </div>
       <div class="pipe-node">
         <div class="pipe-title" style="color:var(--red)">Risk Scoring</div>
         <div class="pipe-desc">New GSTIN · Round amounts · March rush · Party history · 47 factors</div>
-        <div class="pipe-lat" style="color:var(--blu)">&lt;5ms · Runs on save</div>
+        <div class="pipe-lat" style="color:var(--accent)">&lt;5ms · Runs on save</div>
       </div>
       <div class="pipe-node">
-        <div class="pipe-title" style="color:var(--ora)">Unusual Patterns</div>
+        <div class="pipe-title" style="color:var(--amber)">Unusual Patterns</div>
         <div class="pipe-desc">Compares each entry to your own company's history — flags outliers</div>
-        <div class="pipe-lat" style="color:var(--blu)">&lt;8ms · Per company</div>
+        <div class="pipe-lat" style="color:var(--accent)">&lt;8ms · Per company</div>
       </div>
       <div class="pipe-node">
-        <div class="pipe-title" style="color:var(--grn)">Duplicate Check</div>
+        <div class="pipe-title" style="color:#16A34A">Duplicate Check</div>
         <div class="pipe-desc">Detects same invoice submitted multiple times, even with different wording</div>
-        <div class="pipe-lat" style="color:var(--blu)">&lt;10ms · Per save</div>
+        <div class="pipe-lat" style="color:var(--accent)">&lt;10ms · Per save</div>
       </div>
       <div class="pipe-node">
-        <div class="pipe-title" style="color:var(--gold)">Expert Advice</div>
+        <div class="pipe-title" style="color:var(--primary)">Expert Advice</div>
         <div class="pipe-desc">Plain-English explanation of what to do about flagged entries</div>
-        <div class="pipe-lat" style="color:var(--gold)">On demand</div>
+        <div class="pipe-lat" style="color:var(--primary)">On demand</div>
       </div>
     </div>
   </div>
@@ -545,17 +691,17 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
       </div>
     </div>
 
-    <div id="searchTime" style="font-size:.7rem;color:var(--dim);margin-bottom:.6rem"></div>
+    <div id="searchTime" style="font-size:.7rem;color:var(--text-4);margin-bottom:.6rem"></div>
     <div id="searchResults"></div>
 
     <div id="searchQuickRef">
       <div class="shdr">GST Rate Quick Reference</div>
-      <div class="qref-row" style="border-left-color:var(--grn)"><div class="qref-rate" style="color:var(--grn)">0% Exempt</div><div class="qref-items">Rice, Wheat, Fresh Vegetables, Milk, Eggs, Books, Salt, Dal, Pulses</div></div>
-      <div class="qref-row" style="border-left-color:var(--blu)"><div class="qref-rate" style="color:var(--blu)">3%</div><div class="qref-items">Gold &amp; Silver Jewellery, Precious Stones, Diamonds</div></div>
-      <div class="qref-row" style="border-left-color:var(--gold)"><div class="qref-rate" style="color:var(--gold)">5%</div><div class="qref-items">Sugar, Tea, Coffee, Cooking Oils, Flour, Medicines (some), T-Shirts</div></div>
-      <div class="qref-row" style="border-left-color:var(--ora)"><div class="qref-rate" style="color:var(--ora)">12%</div><div class="qref-items">Butter, Cheese, Fruit Juices, Biscuits, Bread, LED Bulbs, Medicines, Pens</div></div>
+      <div class="qref-row" style="border-left-color:#16A34A"><div class="qref-rate" style="color:#16A34A">0% Exempt</div><div class="qref-items">Rice, Wheat, Fresh Vegetables, Milk, Eggs, Books, Salt, Dal, Pulses</div></div>
+      <div class="qref-row" style="border-left-color:var(--accent)"><div class="qref-rate" style="color:var(--accent)">3%</div><div class="qref-items">Gold &amp; Silver Jewellery, Precious Stones, Diamonds</div></div>
+      <div class="qref-row" style="border-left-color:var(--primary)"><div class="qref-rate" style="color:var(--primary)">5%</div><div class="qref-items">Sugar, Tea, Coffee, Cooking Oils, Flour, Medicines (some), T-Shirts</div></div>
+      <div class="qref-row" style="border-left-color:var(--amber)"><div class="qref-rate" style="color:var(--amber)">12%</div><div class="qref-items">Butter, Cheese, Fruit Juices, Biscuits, Bread, LED Bulbs, Medicines, Pens</div></div>
       <div class="qref-row" style="border-left-color:var(--red)"><div class="qref-rate" style="color:var(--red)">18%</div><div class="qref-items">Laptops, Phones, Electronics, Soaps, Shampoos, Furniture, Most Packaged Foods</div></div>
-      <div class="qref-row" style="border-left-color:var(--pur)"><div class="qref-rate" style="color:var(--pur)">28%</div><div class="qref-items">AC, Cars, Bikes, Cement, Chocolate, Luxury Cosmetics, Premium Sweets</div></div>
+      <div class="qref-row" style="border-left-color:#7C3AED"><div class="qref-rate" style="color:#7C3AED">28%</div><div class="qref-items">AC, Cars, Bikes, Cement, Chocolate, Luxury Cosmetics, Premium Sweets</div></div>
     </div>
   </div>
 
@@ -575,21 +721,21 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
 
     <div class="shdr">HSN Code Structure Guide</div>
     <div style="display:grid;gap:.3rem">
-      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
-        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Chapter (2 digits)</div>
-        <div style="font-size:.78rem;color:var(--mid)">84 = Nuclear reactors, boilers, machinery &amp; computers</div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--primary);font-weight:600">Chapter (2 digits)</div>
+        <div style="font-size:.78rem;color:var(--text-3)">84 = Nuclear reactors, boilers, machinery &amp; computers</div>
       </div>
-      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
-        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Heading (4 digits)</div>
-        <div style="font-size:.78rem;color:var(--mid)">8471 = Computers and data processing machines</div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--primary);font-weight:600">Heading (4 digits)</div>
+        <div style="font-size:.78rem;color:var(--text-3)">8471 = Computers and data processing machines</div>
       </div>
-      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
-        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Sub-heading (6 digits)</div>
-        <div style="font-size:.78rem;color:var(--mid)">8471.30 = Portable computers weighing less than 10kg</div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--primary);font-weight:600">Sub-heading (6 digits)</div>
+        <div style="font-size:.78rem;color:var(--text-3)">8471.30 = Portable computers weighing less than 10kg</div>
       </div>
-      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--card);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
-        <div style="min-width:160px;font-size:.78rem;color:var(--gold);font-weight:600">Tariff item (8 digits)</div>
-        <div style="font-size:.78rem;color:var(--mid)">8471.30.10 = Laptops specifically</div>
+      <div style="display:flex;gap:.8rem;padding:.4rem .8rem;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent)">
+        <div style="min-width:160px;font-size:.78rem;color:var(--primary);font-weight:600">Tariff item (8 digits)</div>
+        <div style="font-size:.78rem;color:var(--text-3)">8471.30.10 = Laptops specifically</div>
       </div>
     </div>
   </div>
@@ -637,15 +783,15 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
       </div>
 
       <div class="tax-box" id="taxResult">
-        <div style="font-family:'Instrument Serif',serif;color:var(--gold);font-size:1rem;margin-bottom:.8rem">Tax Breakdown</div>
+        <div style="font-family:'Inter',sans-serif;color:var(--primary);font-size:1rem;margin-bottom:.8rem">Tax Breakdown</div>
         <div class="tax-row"><span class="tax-label">Base Amount</span><span class="tax-val" id="txBase">₹0.00</span></div>
         <div class="tax-row"><span class="tax-label">GST Rate</span><span id="txRate">—</span></div>
         <div id="txBreakdown"></div>
         <div class="tax-row total-row">
-          <span class="tax-label" style="color:var(--gold);font-weight:600">Invoice Total</span>
+          <span class="tax-label" style="color:var(--primary);font-weight:600">Invoice Total</span>
           <span class="tax-total-val" id="txTotal">₹0.00</span>
         </div>
-        <div style="font-size:.65rem;color:var(--dim);margin-top:.5rem" id="txMeta"></div>
+        <div style="font-size:.65rem;color:var(--text-4);margin-top:.5rem" id="txMeta"></div>
       </div>
     </div>
   </div>
@@ -870,7 +1016,7 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
     <div class="shdr">📊 GSTR-2B Check — ITC Matching</div>
     <div class="stat-grid" id="gstrStats">
       <div class="stat-box"><div class="stat-lbl">Total Entries</div><div class="stat-val">—</div></div>
-      <div class="stat-box"><div class="stat-lbl">Matched</div><div class="stat-val" style="color:var(--grn)">—</div></div>
+      <div class="stat-box"><div class="stat-lbl">Matched</div><div class="stat-val" style="color:#16A34A">—</div></div>
       <div class="stat-box"><div class="stat-lbl">Not Found in GSTR-2B</div><div class="stat-val" style="color:var(--red)">—</div></div>
       <div class="stat-box"><div class="stat-lbl">ITC at Risk</div><div class="stat-val" style="color:var(--red)">—</div></div>
     </div>
@@ -894,17 +1040,17 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
 
     <div class="shdr" style="margin-top:1.5rem">Security Architecture</div>
     <div style="display:grid;gap:.3rem">
-      <div class="compliance-row c-ok" style="background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.2)">
+      <div class="compliance-row c-ok" style="background:rgba(59,130,246,.04);border-color:rgba(59,130,246,.2)">
         <span class="c-icon">🔒</span>
-        <div><div class="c-law" style="color:var(--gold)">Merkle Chain Audit Log</div><div class="c-detail">sha256(prev||ts||action||record) — deletion breaks chain, verified on every read</div></div>
+        <div><div class="c-law" style="color:var(--primary)">Merkle Chain Audit Log</div><div class="c-detail">sha256(prev||ts||action||record) — deletion breaks chain, verified on every read</div></div>
       </div>
-      <div class="compliance-row c-ok" style="background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.2)">
+      <div class="compliance-row c-ok" style="background:rgba(59,130,246,.04);border-color:rgba(59,130,246,.2)">
         <span class="c-icon">🔒</span>
-        <div><div class="c-law" style="color:var(--gold)">SQLite WAL Mode</div><div class="c-detail">Write-Ahead Logging — concurrent reads + writes without data corruption</div></div>
+        <div><div class="c-law" style="color:var(--primary)">SQLite WAL Mode</div><div class="c-detail">Write-Ahead Logging — concurrent reads + writes without data corruption</div></div>
       </div>
-      <div class="compliance-row c-ok" style="background:rgba(232,184,75,.04);border-color:rgba(232,184,75,.2)">
+      <div class="compliance-row c-ok" style="background:rgba(59,130,246,.04);border-color:rgba(59,130,246,.2)">
         <span class="c-icon">🔒</span>
-        <div><div class="c-law" style="color:var(--gold)">Fraud Risk Scoring — 47 Factors</div><div class="c-detail">GSTIN age · Round amounts · March rush · Party history · Amount patterns · Missing fields</div></div>
+        <div><div class="c-law" style="color:var(--primary)">Fraud Risk Scoring — 47 Factors</div><div class="c-detail">GSTIN age · Round amounts · March rush · Party history · Amount patterns · Missing fields</div></div>
       </div>
     </div>
   </div>
@@ -937,7 +1083,7 @@ tr:hover td{background:rgba(255,255,255,.015);color:var(--text)}
           </div>
         </div>
       </div>
-      <div id="browseStats" style="font-size:.72rem;color:var(--dim);margin-bottom:.5rem"></div>
+      <div id="browseStats" style="font-size:.72rem;color:var(--text-4);margin-bottom:.5rem"></div>
       <div class="tbl-wrap" id="browseTable"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
       <div class="pagination" id="browsePagination"></div>
     </div>
@@ -1123,12 +1269,12 @@ async function loadDashboard() {
   document.getElementById('dashHighRisk').innerHTML = `<table>
     <thead><tr><th>Entry ID</th><th>Date</th><th>Party</th><th>Amount</th><th>Risk Score</th><th>Issue</th><th>Action</th></tr></thead>
     <tbody>${rows.map(r => `<tr>
-      <td><span style="font-family:'DM Mono',monospace;color:var(--gold)">${r.id}</span></td>
+      <td><span style="font-family:'DM Mono',monospace;color:var(--primary)">${r.id}</span></td>
       <td>${r.date}</td>
       <td><b>${r.party_name || '—'}</b></td>
       <td style="font-family:'DM Mono',monospace">${fmt(r.total_amount)}</td>
       <td><span class="risk-high">${r.l2_score}/100</span></td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;color:var(--ora)">${r.ai_flags || '—'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;color:var(--amber)">${r.ai_flags || '—'}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="goto('investigate')">Investigate</button></td>
     </tr>`).join('')}</tbody>
   </table>`;
@@ -1193,8 +1339,8 @@ async function _doSearch() {
           </div>
         </div>
         <div style="text-align:right;font-size:.78rem">
-          <div style="color:var(--dim);font-size:.68rem">On ₹1,000 base</div>
-          <div style="color:var(--mid)">${isIGST ? 'IGST: ₹'+igst : 'CGST: ₹'+cgst+' + SGST: ₹'+sgst}</div>
+          <div style="color:var(--text-4);font-size:.68rem">On ₹1,000 base</div>
+          <div style="color:var(--text-3)">${isIGST ? 'IGST: ₹'+igst : 'CGST: ₹'+cgst+' + SGST: ₹'+sgst}</div>
           <div style="font-weight:600">Total: ₹${total}</div>
         </div>
       </div>
@@ -1240,8 +1386,8 @@ async function _doHsnLookup() {
           <div class="result-meta"><span class="hsn-code">HSN ${r.hsn_code}</span>${gstBadge(r.gst_rate)}</div>
         </div>
         <div style="text-align:right;font-size:.78rem">
-          <div style="color:var(--dim);font-size:.68rem">On ₹1,000 base</div>
-          <div style="color:var(--mid)">${state.isIGST ? 'IGST: ₹'+taxAmt : 'CGST: ₹'+(taxAmt/2).toFixed(2)+' + SGST: ₹'+(taxAmt/2).toFixed(2)}</div>
+          <div style="color:var(--text-4);font-size:.68rem">On ₹1,000 base</div>
+          <div style="color:var(--text-3)">${state.isIGST ? 'IGST: ₹'+taxAmt : 'CGST: ₹'+(taxAmt/2).toFixed(2)+' + SGST: ₹'+(taxAmt/2).toFixed(2)}</div>
           <div style="font-weight:600">Total: ₹${total}</div>
         </div>
       </div>
@@ -1275,8 +1421,8 @@ function computeTax() {
   } else {
     const half = Math.round(taxAmt / 2 * 100) / 100;
     document.getElementById('txBreakdown').innerHTML = `
-      <div class="tax-row"><span class="tax-label">CGST (${rate/2}%)</span><span class="tax-val" style="color:var(--ora)">${fmt2(half)}</span></div>
-      <div class="tax-row"><span class="tax-label">SGST (${rate/2}%)</span><span class="tax-val" style="color:var(--ora)">${fmt2(half)}</span></div>`;
+      <div class="tax-row"><span class="tax-label">CGST (${rate/2}%)</span><span class="tax-val" style="color:var(--amber)">${fmt2(half)}</span></div>
+      <div class="tax-row"><span class="tax-label">SGST (${rate/2}%)</span><span class="tax-val" style="color:var(--amber)">${fmt2(half)}</span></div>`;
   }
 }
 
@@ -1292,7 +1438,7 @@ async function _doCalcSearch() {
   if (!q) { el.innerHTML = ''; return; }
   const results = await api('/api/hsn/search?q=' + encodeURIComponent(q) + '&limit=4');
   el.innerHTML = results.map(r => `
-    <div style="background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.4rem .7rem;margin-bottom:.2rem;cursor:pointer;font-size:.8rem;display:flex;gap:.6rem;align-items:center"
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .7rem;margin-bottom:.2rem;cursor:pointer;font-size:.8rem;display:flex;gap:.6rem;align-items:center"
       onclick="fillCalcFromResult('${r.hsn_code}','${parseInt(r.gst_rate)}')">
       <span style="flex:1"><b>${r.item_name}</b></span>
       <span class="hsn-code">HSN ${r.hsn_code}</span>
@@ -1326,10 +1472,10 @@ async function loadCompanies() {
         <div>
           <span style="font-size:.95rem;font-weight:600">${co.name}</span>
           ${isActive ? '<span class="co-badge" style="margin-left:.5rem">ACTIVE</span>' : ''}
-          <div style="font-size:.72rem;color:var(--mid);margin-top:3px">
+          <div style="font-size:.72rem;color:var(--text-3);margin-top:3px">
             ID: <code>${co.id}</code> · GSTIN: <code>${co.gstin}</code> · State: ${co.state}
           </div>
-          <div style="font-size:.7rem;color:var(--dim)">FY Start: ${co.fy_start} · Currency: ${co.currency}</div>
+          <div style="font-size:.7rem;color:var(--text-4)">FY Start: ${co.fy_start} · Currency: ${co.currency}</div>
         </div>
         <div style="display:flex;gap:.4rem">
           <button class="btn btn-secondary btn-sm" onclick="setCompany('${co.id}');goto('dashboard')">Set Active</button>
@@ -1391,7 +1537,7 @@ async function loadLedgers() {
     const crTotal = items.filter(l=>l.balance_type==='Credit').reduce((s,l)=>s+l.opening_balance,0);
     return `<div class="ledger-group-header" onclick="toggleGroup(this)">
       <span>📁 ${grp}</span>
-      <span style="font-size:.72rem;color:var(--mid)">DR ${fmt(drTotal)} · CR ${fmt(crTotal)}</span>
+      <span style="font-size:.72rem;color:var(--text-3)">DR ${fmt(drTotal)} · CR ${fmt(crTotal)}</span>
     </div>
     <div class="ledger-items">
       ${items.map(l => `<div class="ledger-item">
@@ -1406,9 +1552,9 @@ async function loadLedgers() {
   const totalCr = ledgers.filter(l=>l.balance_type==='Credit').reduce((s,l)=>s+l.opening_balance,0);
   const diff = totalDr - totalCr;
   document.getElementById('ledgerSummary').innerHTML = `
-    <div style="display:flex;justify-content:flex-end;gap:2rem;padding:.6rem 1rem;background:var(--card);border-radius:var(--radius-sm);font-size:.8rem">
+    <div style="display:flex;justify-content:flex-end;gap:2rem;padding:.6rem 1rem;background:var(--surface);border-radius:var(--radius-sm);font-size:.8rem">
       <span>Total Debit: <b style="color:var(--red)">${fmt(totalDr)}</b></span>
-      <span>Total Credit: <b style="color:var(--grn)">${fmt(totalCr)}</b></span>
+      <span>Total Credit: <b style="color:#16A34A">${fmt(totalCr)}</b></span>
       <span>Difference: <b style="color:${Math.abs(diff)<1?'var(--grn)':'var(--red)'}">${fmt(diff)}</b></span>
     </div>`;
 }
@@ -1487,10 +1633,10 @@ async function saveVoucher() {
       ${res.l1_flags ? `<div class="note note-warn">${res.l1_flags}</div>` : ''}
       ${res.l4_duplicate !== 'Clear' ? `<div class="note note-warn">⚠ ${res.l4_duplicate}</div>` : ''}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.5rem;font-size:.78rem">
-        <div><span style="color:var(--dim)">Risk Score</span><br><b>${res.l2_score}/100</b></div>
-        <div><span style="color:var(--dim)">Pattern</span><br><b>${res.l3_anomaly < -0.2 ? '⚠ Unusual' : '✓ Normal'}</b></div>
-        <div><span style="color:var(--dim)">Duplicate</span><br><b>${res.l4_duplicate}</b></div>
-        <div><span style="color:var(--dim)">Tax Total</span><br><b style="color:var(--gold)">${fmt2(tx['Invoice Total'])}</b></div>
+        <div><span style="color:var(--text-4)">Risk Score</span><br><b>${res.l2_score}/100</b></div>
+        <div><span style="color:var(--text-4)">Pattern</span><br><b>${res.l3_anomaly < -0.2 ? '⚠ Unusual' : '✓ Normal'}</b></div>
+        <div><span style="color:var(--text-4)">Duplicate</span><br><b>${res.l4_duplicate}</b></div>
+        <div><span style="color:var(--text-4)">Tax Total</span><br><b style="color:var(--primary)">${fmt2(tx['Invoice Total'])}</b></div>
       </div>
       ${res.risk_level==='High' ? `<div class="note note-err" style="margin-top:.5rem">⚠ High risk — ITC claim on this entry may be disallowed. Review before filing GSTR-3B.</div>` : ''}
     </div>`;
@@ -1515,7 +1661,7 @@ async function loadVouchers() {
   const el = document.getElementById('vouchersTable');
 
   if (!data.rows.length) {
-    el.innerHTML = '<div style="padding:1rem;color:var(--mid);text-align:center">No entries found.</div>';
+    el.innerHTML = '<div style="padding:1rem;color:var(--text-3);text-align:center">No entries found.</div>';
     document.getElementById('voucherPagination').innerHTML = '';
     return;
   }
@@ -1526,7 +1672,7 @@ async function loadVouchers() {
       <th>Base</th><th>Tax</th><th>Total</th><th>Risk</th><th>Score</th><th>Status</th>
     </tr></thead>
     <tbody>${data.rows.map(r => `<tr>
-      <td><span style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--gold)">${r.id}</span></td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--primary)">${r.id}</span></td>
       <td>${r.date}</td>
       <td>${r.type}</td>
       <td>${r.party_name || '—'}</td>
@@ -1535,7 +1681,7 @@ async function loadVouchers() {
       <td style="font-family:'DM Mono',monospace">${fmt(r.total_amount)}</td>
       <td>${riskPill(r.risk_level)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:.75rem">${r.l2_score}</td>
-      <td style="font-size:.72rem;color:var(--mid)">${r.review_status}</td>
+      <td style="font-size:.72rem;color:var(--text-3)">${r.review_status}</td>
     </tr>`).join('')}</tbody>
   </table>`;
 
@@ -1566,15 +1712,15 @@ async function loadInvestigate() {
     return `<div class="card danger" style="margin-bottom:.7rem">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
         <div>
-          <span style="font-family:'DM Mono',monospace;color:var(--gold)">${r.id}</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--primary)">${r.id}</span>
           &nbsp;<span class="risk-high">Score ${r.l2_score}/100</span>
           <div style="font-size:.95rem;font-weight:600;margin-top:.3rem">${r.party_name || '—'}</div>
-          <div style="font-size:.72rem;color:var(--mid);margin-top:2px">
+          <div style="font-size:.72rem;color:var(--text-3);margin-top:2px">
             GSTIN: <code>${r.gstin || '—'}</code> ·
             GSTIN Age: <b style="color:${ageColor}">${age} days</b> ·
             Date: ${r.date}
           </div>
-          <div style="font-size:.72rem;color:var(--mid)">
+          <div style="font-size:.72rem;color:var(--text-3)">
             Base: ${fmt(r.base_amount)} · Tax: ${fmt(r.tax_amount)} @ ${parseInt(r.gst_rate)}% · Total: ${fmt(r.total_amount)}
           </div>
           ${r.is_round_number ? '<span class="tag tag-gold" style="font-size:.6rem;margin-top:4px">Round Number</span>' : ''}
@@ -1588,7 +1734,7 @@ async function loadInvestigate() {
       </div>
       <div id="gstn-result-${r.id}" style="margin-top:.5rem"></div>
       ${r.l1_flags ? `<div class="note note-warn" style="margin-top:.5rem">${r.l1_flags}</div>` : ''}
-      <div style="font-size:.72rem;color:var(--ora);margin-top:.3rem">${r.ai_flags || ''}</div>
+      <div style="font-size:.72rem;color:var(--amber);margin-top:.3rem">${r.ai_flags || ''}</div>
     </div>`;
   }).join('');
 }
@@ -1644,7 +1790,7 @@ async function loadBacktrack() {
   const cls  = risk==='High'?'danger':risk==='Medium'?'warn':'ok';
 
   // Layers
-  const layerColors = {L1:'var(--blu)',L2:'var(--red)',L3:'var(--ora)',L4:'var(--grn)',L5:'var(--gold)'};
+  const layerColors = {L1:'var(--blu)',L2:'var(--red)',L3:'var(--amber)',L4:'#16A34A',L5:'var(--primary)'};
   const layersHtml = data.layers.map(l => `
     <div class="bt-card">
       <div class="bt-header">
@@ -1677,10 +1823,10 @@ async function loadBacktrack() {
     <div class="card ${cls}" style="margin-bottom:1rem">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
         <div>
-          <span style="font-family:'DM Mono',monospace;color:var(--gold);font-size:.85rem">${v.id}</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--primary);font-size:.85rem">${v.id}</span>
           &nbsp;${riskPill(risk)}
         </div>
-        <div style="font-size:.78rem;color:var(--mid)">${v.party_name} · ${fmt(v.total_amount)}</div>
+        <div style="font-size:.78rem;color:var(--text-3)">${v.party_name} · ${fmt(v.total_amount)}</div>
       </div>
     </div>
 
@@ -1716,7 +1862,7 @@ async function loadGSTR() {
   const statsEl = document.getElementById('gstrStats');
   statsEl.innerHTML = `
     <div class="stat-box"><div class="stat-lbl">Total Entries</div><div class="stat-val">${data.total}</div></div>
-    <div class="stat-box"><div class="stat-lbl">Matched</div><div class="stat-val" style="color:var(--grn)">${data.matched}</div></div>
+    <div class="stat-box"><div class="stat-lbl">Matched</div><div class="stat-val" style="color:#16A34A">${data.matched}</div></div>
     <div class="stat-box"><div class="stat-lbl">Not in GSTR-2B</div><div class="stat-val" style="color:var(--red)">${data.mismatches}</div></div>
     <div class="stat-box"><div class="stat-lbl">ITC at Risk</div><div class="stat-val" style="color:var(--red)">${fmt(data.itc_at_risk)}</div></div>`;
 
@@ -1728,7 +1874,7 @@ async function loadGSTR() {
   el.innerHTML = `<table>
     <thead><tr><th>Entry ID</th><th>Date</th><th>Party</th><th>Invoice</th><th>Base</th><th>Tax</th><th>Risk</th><th>Action</th></tr></thead>
     <tbody>${data.mismatch_rows.map(r=>`<tr>
-      <td><span style="font-family:'DM Mono',monospace;color:var(--gold)">${r.id}</span></td>
+      <td><span style="font-family:'DM Mono',monospace;color:var(--primary)">${r.id}</span></td>
       <td>${r.date}</td>
       <td>${r.party_name||'—'}</td>
       <td>${r.invoice_number||'—'}</td>
@@ -1757,7 +1903,7 @@ async function loadBrowse() {
 
   const el = document.getElementById('browseTable');
   if (!data.rows.length) {
-    el.innerHTML = '<div style="padding:1rem;color:var(--mid);text-align:center">No products found.</div>';
+    el.innerHTML = '<div style="padding:1rem;color:var(--text-3);text-align:center">No products found.</div>';
     document.getElementById('browsePagination').innerHTML = '';
     return;
   }
@@ -1768,8 +1914,8 @@ async function loadBrowse() {
       <td><span class="hsn-code">${r.hsn_code}</span></td>
       <td>${r.item_name}</td>
       <td>${gstBadge(r.gst_rate)}</td>
-      <td style="color:var(--dim)">${r.section||'—'}</td>
-      <td style="color:var(--dim)">${r.chapter||'—'}</td>
+      <td style="color:var(--text-4)">${r.section||'—'}</td>
+      <td style="color:var(--text-4)">${r.chapter||'—'}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteHsn(${r.id},'${r.item_name}')">Remove</button></td>
     </tr>`).join('')}</tbody>
   </table>`;
@@ -1812,16 +1958,16 @@ async function loadAudit() {
   const data = await api('/api/audit?limit=60');
   const el   = document.getElementById('auditEntries');
   const ACTION_COLORS = {
-    DEMO_SEED:'var(--mid)', COMPANY_CREATE:'var(--grn)', COMPANY_DELETE:'var(--red)',
-    LEDGER_CREATE:'var(--blu)', VOUCHER_SAVE:'var(--blu)', HSN_ADD:'var(--gold)',
+    DEMO_SEED:'var(--text-4)', COMPANY_CREATE:'#16A34A', COMPANY_DELETE:'var(--red)',
+    LEDGER_CREATE:'var(--blu)', VOUCHER_SAVE:'var(--accent)', HSN_ADD:'var(--primary)',
     HSN_DELETE:'var(--ora)', GSTN_VERIFY:'var(--teal)',
   };
   el.innerHTML = data.entries.map(e => {
-    const col = ACTION_COLORS[e.action] || 'var(--mid)';
+    const col = ACTION_COLORS[e.action] || 'var(--text-4)';
     const after = e.after_val ? JSON.parse(e.after_val) : {};
     const afterStr = Object.entries(after).slice(0,3).map(([k,v])=>`${k}=${v}`).join(' · ');
-    return `<div style="font-family:'DM Mono',monospace;font-size:.68rem;background:#030508;border:1px solid rgba(255,255,255,.04);border-left:3px solid ${col};border-radius:4px;padding:.4rem .75rem;margin-bottom:.2rem;color:var(--mid)">
-      <span style="color:var(--gold)">${e.ts}</span>
+    return `<div style="font-family:'DM Mono',monospace;font-size:.68rem;background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${col};border-radius:4px;padding:.4rem .75rem;margin-bottom:.2rem;color:var(--text-3)">
+      <span style="color:var(--primary)">${e.ts}</span>
       &nbsp;<span style="color:${col};font-weight:600">${e.action}</span>
       &nbsp;tbl=${e.tbl} · ref=${e.record_id.substring(0,12)}
       ${afterStr ? `&nbsp;· ${afterStr}` : ''}
