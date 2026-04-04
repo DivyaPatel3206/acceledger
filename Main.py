@@ -25,14 +25,22 @@ except ImportError:
     ISO_AVAILABLE = False
 
 from fastapi import FastAPI, HTTPException, Query
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 # ─── Config ───────────────────────────────────────────────────────────────────
-DB_PATH    = "acculedger.db"
-app = FastAPI(title="AccuLedger Pro", version="1.0")
+import pathlib
+BASE_DIR   = pathlib.Path(__file__).parent.resolve()
+DB_PATH    = str(BASE_DIR / "acculedger.db")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()          # run on startup
+    yield              # app runs here
+    pass               # nothing to clean up on shutdown
+
+app = FastAPI(title="AccuLedger Pro", version="1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -679,18 +687,16 @@ class HsnCreate(BaseModel):
     section: str = ""; chapter: str = ""; description: str = ""
 
 # ─── Startup ──────────────────────────────────────────────────────────────────
-@app.on_event("startup")
-def startup():
-    init_db()
+# startup is now called via lifespan (on_event is deprecated in FastAPI 0.93+)
 
 # ─── Routes: Static ───────────────────────────────────────────────────────────
 @app.get("/")
 def serve_landing():
-    return FileResponse("landing.html")
+    return FileResponse(str(BASE_DIR / "landing.html"))
 
 @app.get("/app")
 def serve_app():
-    return FileResponse("index.html")
+    return FileResponse(str(BASE_DIR / "index.html"))
 
 # ─── Routes: HSN Lookup ───────────────────────────────────────────────────────
 @app.get("/api/hsn/search")
